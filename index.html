@@ -579,19 +579,6 @@
         }
     </style>
 </head>
-    <!-- PWA Service Worker Registration -->
-<script>
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('sw.js')
-            .then(function(registration) {
-                console.log('ServiceWorker registration successful');
-            }, function(err) {
-                console.log('ServiceWorker registration failed: ', err);
-            });
-    });
-}
-</script>
 <body>
     <div class="container">
         <div class="header">
@@ -2539,6 +2526,19 @@ if ('serviceWorker' in navigator) {
         
         // Initialize app when page loads
         init();
+    </script>
+    <!-- PWA Service Worker Registration -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/workout-tracker/sw.js')
+                .then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+        });
+    }
     </script>
 </body>
 </html>
