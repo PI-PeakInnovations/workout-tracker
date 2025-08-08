@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calisthenic Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .date-display {
+            font-size: 18px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .workout-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .exercise {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .exercise-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .sets-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .set {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .set-info {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid #667eea;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox.checked {
+            background: #667eea;
+            border-color: #667eea;
+        }
+        
+        .checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .admin-panel {
+            margin-top: 30px;
+            border-top: 2px solid #e9ecef;
+            padding-top: 20px;
+        }
+        
+        .admin-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .admin-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+        
+        .workout-form {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .exercise-template {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .remove-exercise {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right;
+        }
+        
+        .workout-library {
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .workout-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .workout-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .workout-item.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .workout-item-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .workout-item-exercises {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .workout-item-count {
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
+            margin-top: 5px;
+        }
+        
+        .exercise-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .category-btn {
+            background: #e9ecef;
+            color: #333;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn.active,
+        .category-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .exercise-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .exercise-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .exercise-item-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .exercise-item-category {
+            font-size: 11px;
+            color: #888;
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .progression-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .exercise-progression-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .exercise-name-large {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .progression-visualization {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .week-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            position: relative;
+        }
+        
+        .week-indicator.low { background: #28a745; }
+        .week-indicator.medium { background: #ffc107; color: #000; }
+        .week-indicator.high { background: #dc3545; }
+        
+        .progression-arrow {
+            color: #667eea;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .progression-summary {
+            font-size: 12px;
+            color: #666;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .assessment-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .assessment-exercise {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .assessment-exercise-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .assessment-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .assessment-input {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .assessment-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .assessment-label {
+            font-size: 14px;
+            color: #666;
+            min-width: 80px;
+        }
+        
+        .assessment-recommendation {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #004085;
+        }
+        
+        .training-zones {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .training-zone {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .zone-percentage {
+            font-weight: 700;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .zone-reps {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+        
+        .zone-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .zone-strength { border-color: #dc3545; }
+        .zone-strength .zone-reps { color: #dc3545; }
+        
+        .zone-power { border-color: #fd7e14; }
+        .zone-power .zone-reps { color: #fd7e14; }
+        
+        .zone-endurance { border-color: #28a745; }
+        .zone-endurance .zone-reps { color: #28a745; }
+        
+        .zone-volume { border-color: #6f42c1; }
+        .zone-volume .zone-reps { color: #6f42c1; }
+        
+        .weekly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .day-planner {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .day-planner:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .day-header {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .day-workout-select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .day-workout-select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .workout-preview {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+            min-height: 60px;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px dashed #dee2e6;
+        }
+        
+        .workout-preview.has-workout {
+            border: 1px solid #28a745;
+            background: #f8fff9;
+        }
+        
+        .workout-preview.rest-day {
+            border: 1px solid #ffc107;
+            background: #fffbf0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="date-display" id="dateDisplay"></div>
+            <div class="workout-title">Upper Body Calisthenics</div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn" onclick="changeDay(-1)">← Previous</button>
+            <button class="nav-btn" onclick="changeDay(1)">Next →</button>
+        </div>
+        
+        <div class="progress-text">Today's Progress</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div id="workoutContainer">
+            <!-- Workout exercises will be loaded here -->
+        </div>
+        
+        <div class="admin-panel">
+            <div class="admin-title">Workout Management</div>
+            <button class="admin-btn" onclick="toggleWorkoutLibrary()">📚 Workout Library</button>
+            <button class="admin-btn" onclick="toggleExerciseLibrary()">💪 Exercise Library</button>
+            <button class="admin-btn" onclick="toggleWeeklyPlanner()">📅 Weekly Plan Builder</button>
+            <button class="admin-btn" onclick="toggleProgressionPlanner()">📈 Progression Planner</button>
+            <button class="admin-btn" onclick="toggleWorkoutForm()">Create New Workout</button>
+            <button class="admin-btn" onclick="editCurrentWorkout()">Edit Today's Workout</button>
+            <button class="admin-btn" onclick="exportData()">Export Data</button>
+            <button class="admin-btn" onclick="resetProgress()">Reset Progress</button>
+            <button class="admin-btn" onclick="resetToDefaultWorkout()">🔄 Reset to Default Workout</button>
+            
+            <div class="workout-library" id="workoutLibrary" style="display: none;">
+                <div class="admin-title" style="margin-top: 20px;">Available Workouts</div>
+                <div id="workoutList"></div>
+                <div style="margin-top: 15px;">
+                    <label class="form-label">Assign to:</label>
+                    <select class="form-input" id="daySelector">
+                        <option value="Day1">Day 1 (Today's type)</option>
+                        <option value="Day2">Day 2 (Alternate type)</option>
+                    </select>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="admin-btn" onclick="loadSelectedWorkout()" style="flex: 1;">Load Selected</button>
+                        <button class="admin-btn" onclick="editSelectedWorkout()" style="flex: 1; background: #ffc107; color: #000;">Edit Selected</button>
+                        <button class="admin-btn" onclick="deleteSelectedWorkout()" style="flex: 1; background: #dc3545;">Delete</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workout-library" id="weeklyPlanner" style="display: none;">
+                <div class="admin-title" style="margin-top: 20px;">📅 Weekly Plan Builder</div>
+                
+                <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 10px;">Design Your Weekly Training Schedule</div>
+                    <div style="font-size: 14px; color: #666;">Choose what workout happens on each day, then apply to your routine.</div>
+                </div>
+                
+                <div class="weekly-grid">
+                    <div class="day-planner" data-day="monday">
+                        <div class="day-header">Monday</div>
+                        <select class="day-workout-select" id="monday-select">
+                            <option value="">-- Select Workout --</option>
+                            <option value="rest">🛌 Rest Day</option>
+                        </select>
+                        <div class="workout-preview" id="monday-preview"></div>
+                    </div>
+                    
+                    <div class="day-planner" data-day="tuesday">
+                        <div class="day-header">Tuesday</div>
+                        <select class="day-workout-select" id="tuesday-select">
+                            <option value="">-- Select Workout --</option>
+                            <option value="rest">🛌 Rest Day</option>
+                        </select>
+                        <div class="workout-preview" id="tuesday-preview"></div>
+                    </div>
+                    
+                    <div class="day-planner" data-day="wednesday">
+                        <div class="day-header">Wednesday</div>
+                        <select class="day-workout-select" id="wednesday-select">
+                            <option value="">-- Select Workout --</option>
+                            <option value="rest">🛌 Rest Day</option>
+                        </select>
+                        <div class="workout-preview" id="wednesday-preview"></div>
+                    </div>
+                    
+                    <div class="day-planner" data-day="thursday">
+                        <div class="day-header">Thursday</div>
+                        <select class="day-workout-select" id="thursday-select">
+                            <option value="">-- Select Workout --</option>
+                            <option value="rest">🛌 Rest Day</option>
+                        </select>
+                        <div class="workout-preview" id="thursday-preview"></div>
+                    </div>
+                    
+                    <div class="day-planner" data-day="friday">
+                        <div class="day-header">Friday</div>
+                        <select class="day-workout-select" id="friday-select">
+                            <option value="">-- Select Workout --</option>
+                            <option value="rest">🛌 Rest Day</option>
+                        </select>
+                        <div class="workout-preview" id="friday-preview"></div>
+                    </div>
+                    
+                    <div class="day-planner" data-day="saturday">
+                        <div class="day-header">Saturday</div>
+                        <select class="day-workout-select" id="saturday-select">
+                            <option value="">-- Select Workout --</option>
+                            <option value="rest">🛌 Rest Day</option>
+                        </select>
+                        <div class="workout-preview" id="saturday-preview"></div>
+                    </div>
+                    
+                    <div class="day-planner" data-day="sunday">
+                        <div class="day-header">Sunday</div>
+                        <select class="day-workout-select" id="sunday-select">
+                            <option value="">-- Select Workout --</option>
+                            <option value="rest">🛌 Rest Day</option>
+                        </select>
+                        <div class="workout-preview" id="sunday-preview"></div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <div class="admin-title">Quick Templates</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                        <button class="admin-btn" onclick="applyWeeklyTemplate('pushPull')">📈 Push/Pull Split</button>
+                        <button class="admin-btn" onclick="applyWeeklyTemplate('upperLower')">💪 Upper/Lower</button>
+                        <button class="admin-btn" onclick="applyWeeklyTemplate('fullBody')">🔄 Full Body</button>
+                        <button class="admin-btn" onclick="applyWeeklyTemplate('powerEndurance')">⚡ Power/Endurance</button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="admin-btn" onclick="saveWeeklyPlan()" style="background: #28a745; flex: 1;">💾 Apply This Weekly Plan</button>
+                        <button class="admin-btn" onclick="clearWeeklyPlan()" style="background: #dc3545; flex: 1;">🗑️ Clear Plan</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workout-library" id="exerciseLibrary" style="display: none;">
+                <div class="admin-title" style="margin-top: 20px;">Exercise Library</div>
+                <div class="exercise-categories">
+                    <button class="category-btn active" onclick="filterExercises('all')">All</button>
+                    <button class="category-btn" onclick="filterExercises('TRX')">TRX</button>
+                    <button class="category-btn" onclick="filterExercises('Ring')">Rings</button>
+                    <button class="category-btn" onclick="filterExercises('Parallette')">Parallettes</button>
+                    <button class="category-btn" onclick="filterExercises('Pull-up')">Pull-up Bar</button>
+                    <button class="category-btn" onclick="filterExercises('Dumbbell')">Dumbbells</button>
+                </div>
+                <div id="exerciseList"></div>
+                <div style="margin-top: 15px;">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" class="form-input" id="newExerciseName" placeholder="Add new exercise" style="flex: 1;">
+                        <select class="form-input" id="exerciseCategory" style="flex: 1;">
+                            <option value="TRX">TRX</option>
+                            <option value="Ring">Rings</option>
+                            <option value="Parallette">Parallettes</option>
+                            <option value="Pull-up">Pull-up Bar</option>
+                            <option value="Dumbbell">Dumbbells</option>
+                            <option value="Bodyweight">Bodyweight</option>
+                        </select>
+                        <button class="admin-btn" onclick="addNewExercise()">Add</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workout-library" id="progressionPlanner" style="display: none;">
+                <div class="admin-title" style="margin-top: 20px;">📈 Progression Planner</div>
+                
+                <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button class="category-btn active" onclick="setProgressionView('overview')">Overview</button>
+                        <button class="category-btn" onclick="setProgressionView('assessment')">🎯 Max Rep Test</button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <input type="date" class="form-input" id="planStartDate" style="flex: 1;">
+                        <select class="form-input" id="planDuration" style="flex: 1;">
+                            <option value="4">4 Weeks</option>
+                            <option value="8">8 Weeks</option>
+                            <option value="12">12 Weeks</option>
+                            <option value="16">16 Weeks</option>
+                        </select>
+                        <button class="admin-btn" onclick="generateProgressionPlan()">Generate Plan</button>
+                    </div>
+                </div>
+                
+                <div id="progressionOverview"></div>
+                <div id="progressionAssessment" style="display: none;"></div>
+                
+                <div style="margin-top: 20px;">
+                    <div class="admin-title">Quick Progression Templates</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <button class="admin-btn" onclick="applyProgressionTemplate('linear')">📈 Linear</button>
+                        <button class="admin-btn" onclick="applyProgressionTemplate('wave')">🌊 Wave</button>
+                        <button class="admin-btn" onclick="applyProgressionTemplate('pyramid')">⛰️ Pyramid</button>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <button class="admin-btn" onclick="saveProgressionPlan()">💾 Save Plan</button>
+                        <button class="admin-btn" onclick="loadProgressionPlan()">📂 Load Plan</button>
+                        <button class="admin-btn" onclick="loadSmartPlanForToday()" style="background: #6f42c1;">🎯 Load Smart Plan for Today</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workout-form" id="workoutForm">
+                <div class="form-group">
+                    <label class="form-label">Workout Name:</label>
+                    <input type="text" class="form-input" id="workoutName" placeholder="e.g., Upper Body Day A">
+                </div>
+                
+                <div id="exercisesList">
+                    <!-- Exercises will be added here -->
+                </div>
+                
+                <button class="admin-btn" onclick="addExercise()">+ Add Exercise</button>
+                <button class="admin-btn" onclick="saveWorkout()">Save Workout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let workoutData = {};
+        let workoutProgress = {};
+        let progressionPlan = {};
+        let maxRepAssessments = {};
+        let selectedWorkoutForLibrary = null;
+        let currentExerciseFilter = 'all';
+        let currentProgressionView = 'overview';
+        let weeklyPlan = {};
+        
+        // Default workout template with proper exercise variation and recovery
+        const defaultWorkouts = {
+            'Day1': {
+                name: 'Push/Pull Focus A',
+                exercises: [
+                    { name: 'Pull-ups (Wide Grip)', sets: '3x6', type: 'bodyweight' },
+                    { name: 'Parallette Push-ups', sets: '3x10', type: 'bodyweight' },
+                    { name: 'TRX Rows', sets: '3x12', type: 'bodyweight' },
+                    { name: 'Ring Dips', sets: '3x8', type: 'bodyweight' },
+                    { name: 'TRX Curls', sets: '3x12', type: 'bodyweight' },
+                    { name: 'TRX Tricep Extensions', sets: '3x12', type: 'bodyweight' },
+                    { name: 'TRX T-Flys', sets: '3x8', type: 'bodyweight' },
+                    { name: 'Dumbbell Curls', sets: '3x12', weight: '30lbs', type: 'weighted' }
+                ]
+            },
+            'Day2': {
+                name: 'Power/Core Focus B',
+                exercises: [
+                    { name: 'Ring Pull-ups', sets: '4x5', type: 'bodyweight' },
+                    { name: 'Pike Push-ups (Wall)', sets: '3x8', type: 'bodyweight' },
+                    { name: 'TRX Y-Flys', sets: '3x10', type: 'bodyweight' },
+                    { name: 'TRX Supermans', sets: '3x15', type: 'bodyweight' },
+                    { name: 'TRX Ab Pikes', sets: '3x12', type: 'bodyweight' },
+                    { name: 'TRX Face Pulls', sets: '3x15', type: 'bodyweight' },
+                    { name: 'Parallette L-Sits', sets: '3x20s', type: 'bodyweight' },
+                    { name: 'Dumbbell Overhead Press', sets: '3x8', weight: '25lbs', type: 'weighted' }
+                ]
+            }
+        };
+        
+        // Workout templates for library with improved exercise selection
+        const workoutTemplates = {
+            'TRX_Focus': {
+                name: 'TRX Suspension Focus',
+                exercises: [
+                    { name: 'TRX Rows', sets: '4x12', type: 'bodyweight' },
+                    { name: 'TRX Chest Press', sets: '3x10', type: 'bodyweight' },
+                    { name: 'TRX Curls', sets: '3x12', type: 'bodyweight' },
+                    { name: 'TRX Tricep Extensions', sets: '3x10', type: 'bodyweight' },
+                    { name: 'TRX T-Flys', sets: '3x8', type: 'bodyweight' },
+                    { name: 'TRX Y-Flys', sets: '3x8', type: 'bodyweight' },
+                    { name: 'TRX Supermans', sets: '3x15', type: 'bodyweight' },
+                    { name: 'TRX Ab Pikes', sets: '3x12', type: 'bodyweight' }
+                ]
+            },
+            'Ring_Mastery': {
+                name: 'Ring Strength Mastery',
+                exercises: [
+                    { name: 'Ring Support Holds', sets: '3x30s', type: 'bodyweight' },
+                    { name: 'Ring Dips', sets: '4x6', type: 'bodyweight' },
+                    { name: 'Ring Pull-ups', sets: '4x5', type: 'bodyweight' },
+                    { name: 'Ring Rows', sets: '3x10', type: 'bodyweight' },
+                    { name: 'Ring Push-ups', sets: '3x8', type: 'bodyweight' },
+                    { name: 'Ring L-Sits', sets: '3x15s', type: 'bodyweight' },
+                    { name: 'Ring False Grip Holds', sets: '3x20s', type: 'bodyweight' }
+                ]
+            },
+            'Push_Dominant': {
+                name: 'Push Movement Focus',
+                exercises: [
+                    { name: 'Parallette Push-ups', sets: '4x8', type: 'bodyweight' },
+                    { name: 'Pike Push-ups (Wall)', sets: '3x6', type: 'bodyweight' },
+                    { name: 'Ring Dips', sets: '3x8', type: 'bodyweight' },
+                    { name: 'Diamond Push-ups', sets: '3x6', type: 'bodyweight' },
+                    { name: 'TRX Chest Press', sets: '3x10', type: 'bodyweight' },
+                    { name: 'TRX Tricep Extensions', sets: '3x12', type: 'bodyweight' },
+                    { name: 'Parallette L-Sits', sets: '3x20s', type: 'bodyweight' }
+                ]
+            },
+            'Pull_Dominant': {
+                name: 'Pull Movement Focus',
+                exercises: [
+                    { name: 'Pull-ups (Wide Grip)', sets: '4x5', type: 'bodyweight' },
+                    { name: 'Pull-ups (Close Grip)', sets: '3x6', type: 'bodyweight' },
+                    { name: 'Ring Pull-ups', sets: '3x6', type: 'bodyweight' },
+                    { name: 'TRX Rows', sets: '4x12', type: 'bodyweight' },
+                    { name: 'TRX Face Pulls', sets: '3x15', type: 'bodyweight' },
+                    { name: 'TRX Curls', sets: '3x12', type: 'bodyweight' },
+                    { name: 'TRX Supermans', sets: '3x15', type: 'bodyweight' },
+                    { name: 'Dumbbell Rows', sets: '3x10', weight: '35lbs', type: 'weighted' }
+                ]
+            },
+            'Beginner_Foundation': {
+                name: 'Beginner Foundation',
+                exercises: [
+                    { name: 'Wall Push-ups', sets: '3x12', type: 'bodyweight' },
+                    { name: 'Assisted Pull-ups', sets: '3x5', type: 'bodyweight' },
+                    { name: 'TRX Rows (High)', sets: '3x10', type: 'bodyweight' },
+                    { name: 'TRX Chest Press (Easy)', sets: '3x8', type: 'bodyweight' },
+                    { name: 'Plank', sets: '3x30s', type: 'bodyweight' },
+                    { name: 'TRX Curls (Easy)', sets: '3x8', type: 'bodyweight' },
+                    { name: 'Dumbbell Curls', sets: '3x10', weight: '15lbs', type: 'weighted' }
+                ]
+            },
+            'Advanced_Challenge': {
+                name: 'Advanced Challenge',
+                exercises: [
+                    { name: 'One-Arm Push-up Progression', sets: '3x3', type: 'bodyweight' },
+                    { name: 'Archer Pull-ups', sets: '3x4', type: 'bodyweight' },
+                    { name: 'Ring Muscle-ups', sets: '3x2', type: 'bodyweight' },
+                    { name: 'Handstand Push-ups', sets: '3x5', type: 'bodyweight' },
+                    { name: 'Human Flag Progression', sets: '3x10s', type: 'bodyweight' },
+                    { name: 'Ring Iron Cross Progression', sets: '3x5s', type: 'bodyweight' },
+                    { name: 'Weighted Pull-ups', sets: '3x5', weight: '25lbs', type: 'weighted' }
+                ]
+            }
+        };
+        
+        // Exercise library with categories
+        const exerciseLibrary = {
+            'TRX': [
+                'TRX Curls', 'TRX Hammer Curls', 'TRX Tricep Extensions', 'TRX Skull Crushers',
+                'TRX T-Flys', 'TRX Y-Flys', 'TRX Supermans', 'TRX Ab Pikes', 'TRX Rows',
+                'TRX Chest Press', 'TRX Mountain Climbers', 'TRX Pistol Squats', 'TRX Face Pulls'
+            ],
+            'Ring': [
+                'Ring Dips', 'Ring Pull-ups', 'Ring Muscle-ups', 'Ring Rows', 'Ring Push-ups',
+                'Ring Flys', 'Ring Rollouts', 'Ring L-Sits', 'Ring Archer Pull-ups',
+                'Ring False Grip Holds', 'Ring Support Holds', 'Ring Iron Cross Progression'
+            ],
+            'Parallette': [
+                'Parallette Push-ups', 'Pike Push-ups (Wall)', 'Parallette L-Sits',
+                'Parallette Handstands', 'Parallette Tuck Planche', 'Parallette Dips',
+                'Parallette Mountain Climbers', 'Parallette Knee Raises'
+            ],
+            'Pull-up': [
+                'Pull-ups (Wide Grip)', 'Pull-ups (Close Grip)', 'Pull-ups (Neutral Grip)',
+                'Chin-ups', 'Commando Pull-ups', 'Archer Pull-ups', 'L-Sit Pull-ups',
+                'Muscle-ups', 'Negative Pull-ups', 'Assisted Pull-ups', 'Weighted Pull-ups'
+            ],
+            'Dumbbell': [
+                'Dumbbell Curls', 'Dumbbell Hammer Curls', 'Dumbbell Overhead Press',
+                'Dumbbell Flys', 'Dumbbell Rows', 'Dumbbell Tricep Extensions',
+                'Dumbbell Pullovers', 'Dumbbell Lateral Raises', 'Dumbbell Front Raises'
+            ],
+            'Bodyweight': [
+                'Push-ups', 'Diamond Push-ups', 'Wide Push-ups', 'Pike Push-ups',
+                'Handstand Push-ups', 'Wall Push-ups', 'Decline Push-ups', 'Clap Push-ups',
+                'One-Arm Push-ups', 'Burpees', 'Plank', 'Side Plank', 'Bear Crawl'
+            ]
+        };
+        
+        // Initialize app
+        function init() {
+            loadData();
+            if (Object.keys(workoutData).length === 0) {
+                workoutData = JSON.parse(JSON.stringify(defaultWorkouts));
+                saveData();
+            } else {
+                // Fix any existing workouts missing type/weight
+                let fixed = false;
+                Object.keys(workoutData).forEach(key => {
+                    workoutData[key].exercises?.forEach(exercise => {
+                        if (!exercise.type) {
+                            if (exercise.name.toLowerCase().includes('dumbbell')) {
+                                exercise.type = 'weighted';
+                                exercise.weight = exercise.weight || '30lbs';
+                                fixed = true;
+                            } else {
+                                exercise.type = 'bodyweight';
+                                fixed = true;
+                            }
+                        }
+                    });
+                });
+                if (fixed) {
+                    saveData();
+                }
+            }
+            updateDisplay();
+        }
+        
+        // Get current workout key based on weekly plan
+        function getCurrentWorkoutKey() {
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const dayName = dayNames[currentDate.getDay()];
+            
+            // Check if we have a weekly plan
+            if (weeklyPlan[dayName] && weeklyPlan[dayName] !== 'rest' && weeklyPlan[dayName] !== '') {
+                return weeklyPlan[dayName];
+            }
+            
+            // Fallback to original Day1/Day2 system
+            const dayNumber = currentDate.getDay();
+            return dayNumber % 2 === 0 ? 'Day1' : 'Day2';
+        }
+        
+        // Update display
+        function updateDisplay() {
+            updateDateDisplay();
+            loadTodaysWorkout();
+            updateProgress();
+        }
+        
+        // Update date display
+        function updateDateDisplay() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateElement = document.getElementById('dateDisplay');
+            if (dateElement) {
+                dateElement.textContent = currentDate.toLocaleDateString('en-US', options);
+            }
+        }
+        
+        // Load today's workout with rest day handling
+        function loadTodaysWorkout() {
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const todayName = dayNames[currentDate.getDay()];
+            
+            // Check if today is a rest day
+            if (weeklyPlan[todayName] === 'rest') {
+                const container = document.getElementById('workoutContainer');
+                if (!container) return;
+                
+                container.innerHTML = `
+                    <div class="exercise" style="text-align: center; border-left-color: #28a745;">
+                        <div class="exercise-name">🛌 Rest Day</div>
+                        <div style="color: #666; font-size: 14px; margin-top: 10px;">
+                            Take a break! Recovery is just as important as training.
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <button class="admin-btn" onclick="overrideRestDay()" style="background: #667eea;">
+                                💪 Override with Workout
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const workoutKey = getCurrentWorkoutKey();
+            const workout = workoutData[workoutKey];
+            const dateKey = currentDate.toDateString();
+            
+            if (!workout) {
+                const container = document.getElementById('workoutContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="exercise" style="text-align: center;">
+                            <div class="exercise-name">No Workout Assigned</div>
+                            <div style="color: #666; margin: 10px 0;">
+                                Use the Weekly Plan Builder to assign workouts to specific days.
+                            </div>
+                            <button class="admin-btn" onclick="toggleWeeklyPlanner()">📅 Plan Your Week</button>
+                        </div>
+                    `;
+                }
+                return;
+            }
+            
+            const container = document.getElementById('workoutContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            workout.exercises.forEach((exercise, exerciseIndex) => {
+                const exerciseDiv = document.createElement('div');
+                exerciseDiv.className = 'exercise';
+                
+                const setsArray = parseSets(exercise.sets);
+                const weightDisplay = exercise.weight ? ` @ ${exercise.weight}` : '';
+                
+                const setsHtml = setsArray.map((set, setIndex) => {
+                    const isCompleted = workoutProgress[dateKey] && 
+                                      workoutProgress[dateKey][exerciseIndex] && 
+                                      workoutProgress[dateKey][exerciseIndex][setIndex];
+                    
+                    return `
+                        <div class="set">
+                            <div class="set-info">Set ${setIndex + 1}: ${set}${weightDisplay}</div>
+                            <div class="checkbox ${isCompleted ? 'checked' : ''}" 
+                                 onclick="toggleSet(${exerciseIndex}, ${setIndex})"></div>
+                        </div>
+                    `;
+                }).join('');
+                
+                const exerciseTypeIcon = exercise.type === 'weighted' ? '🏋️' : '💪';
+                
+                exerciseDiv.innerHTML = `
+                    <div class="exercise-name">${exerciseTypeIcon} ${exercise.name}</div>
+                    <div class="sets-container">${setsHtml}</div>
+                `;
+                
+                container.appendChild(exerciseDiv);
+            });
+        }
+        
+        // Parse sets string
+        function parseSets(setsString) {
+            const [numSets, reps] = setsString.split('x');
+            const sets = [];
+            for (let i = 0; i < parseInt(numSets); i++) {
+                sets.push(reps);
+            }
+            return sets;
+        }
+        
+        // Toggle set completion
+        function toggleSet(exerciseIndex, setIndex) {
+            const dateKey = currentDate.toDateString();
+            
+            if (!workoutProgress[dateKey]) {
+                workoutProgress[dateKey] = {};
+            }
+            if (!workoutProgress[dateKey][exerciseIndex]) {
+                workoutProgress[dateKey][exerciseIndex] = {};
+            }
+            
+            workoutProgress[dateKey][exerciseIndex][setIndex] = 
+                !workoutProgress[dateKey][exerciseIndex][setIndex];
+            
+            saveData();
+            loadTodaysWorkout();
+            updateProgress();
+        }
+        
+        // Update progress bar
+        function updateProgress() {
+            const workoutKey = getCurrentWorkoutKey();
+            const workout = workoutData[workoutKey];
+            const dateKey = currentDate.toDateString();
+            
+            if (!workout) return;
+            
+            let totalSets = 0;
+            let completedSets = 0;
+            
+            workout.exercises.forEach((exercise, exerciseIndex) => {
+                const setsArray = parseSets(exercise.sets);
+                totalSets += setsArray.length;
+                
+                setsArray.forEach((set, setIndex) => {
+                    if (workoutProgress[dateKey] && 
+                        workoutProgress[dateKey][exerciseIndex] && 
+                        workoutProgress[dateKey][exerciseIndex][setIndex]) {
+                        completedSets++;
+                    }
+                });
+            });
+            
+            const percentage = totalSets > 0 ? (completedSets / totalSets) * 100 : 0;
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.querySelector('.progress-text');
+            
+            if (progressFill) {
+                progressFill.style.width = percentage + '%';
+            }
+            if (progressText) {
+                progressText.textContent = `Today's Progress: ${completedSets}/${totalSets} sets (${Math.round(percentage)}%)`;
+            }
+        }
+        
+        // Change day
+        function changeDay(direction) {
+            currentDate.setDate(currentDate.getDate() + direction);
+            updateDisplay();
+        }
+        
+        // Toggle workout library
+        function toggleWorkoutLibrary() {
+            const library = document.getElementById('workoutLibrary');
+            const isVisible = library.style.display !== 'none';
+            library.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                populateWorkoutLibrary();
+            }
+        }
+        
+        // Populate workout library
+        function populateWorkoutLibrary() {
+            const workoutList = document.getElementById('workoutList');
+            workoutList.innerHTML = '';
+            
+            const allWorkouts = { ...workoutData, ...workoutTemplates };
+            
+            Object.entries(allWorkouts).forEach(([key, workout]) => {
+                const workoutItem = document.createElement('div');
+                workoutItem.className = 'workout-item';
+                workoutItem.setAttribute('data-workout-key', key);
+                workoutItem.onclick = () => selectWorkoutFromLibrary(key, workoutItem);
+                
+                const exercisesList = workout.exercises.map(ex => ex.name).join(', ');
+                const exercisesPreview = exercisesList.length > 80 ? 
+                    exercisesList.substring(0, 80) + '...' : exercisesList;
+                
+                workoutItem.innerHTML = `
+                    <div class="workout-item-name">${workout.name}</div>
+                    <div class="workout-item-exercises">${exercisesPreview}</div>
+                    <div class="workout-item-count">${workout.exercises.length} exercises</div>
+                `;
+                
+                workoutList.appendChild(workoutItem);
+            });
+        }
+        
+        // Select workout from library
+        function selectWorkoutFromLibrary(workoutKey, element) {
+            document.querySelectorAll('.workout-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedWorkoutForLibrary = workoutKey;
+        }
+        
+        // Load selected workout
+        function loadSelectedWorkout() {
+            if (!selectedWorkoutForLibrary) {
+                alert('Please select a workout first');
+                return;
+            }
+            
+            const dayToAssign = document.getElementById('daySelector').value;
+            const selectedWorkout = workoutData[selectedWorkoutForLibrary] || workoutTemplates[selectedWorkoutForLibrary];
+            
+            if (!selectedWorkout) {
+                alert('Workout not found');
+                return;
+            }
+            
+            workoutData[dayToAssign] = { ...selectedWorkout };
+            
+            saveData();
+            updateDisplay();
+            toggleWorkoutLibrary();
+            
+            alert(`"${selectedWorkout.name}" has been loaded to ${dayToAssign === 'Day1' ? 'Day 1' : 'Day 2'}!`);
+        }
+        
+        // Edit selected workout from library
+        function editSelectedWorkout() {
+            if (!selectedWorkoutForLibrary) {
+                alert('Please select a workout first');
+                return;
+            }
+            
+            const selectedWorkout = workoutData[selectedWorkoutForLibrary] || workoutTemplates[selectedWorkoutForLibrary];
+            
+            if (!selectedWorkout) {
+                alert('Workout not found');
+                return;
+            }
+            
+            toggleWorkoutLibrary();
+            
+            document.getElementById('workoutName').value = selectedWorkout.name;
+            document.getElementById('exercisesList').innerHTML = '';
+            
+            selectedWorkout.exercises.forEach(exercise => {
+                addExerciseToForm(exercise.name, exercise.sets, exercise.weight || '', exercise.type || 'bodyweight');
+            });
+            
+            document.getElementById('workoutForm').style.display = 'block';
+            
+            const form = document.getElementById('workoutForm');
+            const saveBtn = form.querySelector('button[onclick*="Workout"]');
+            saveBtn.textContent = 'Save As New Workout';
+            saveBtn.setAttribute('onclick', 'saveWorkout()');
+        }
+        
+        // Delete selected workout
+        function deleteSelectedWorkout() {
+            if (!selectedWorkoutForLibrary) {
+                alert('Please select a workout first');
+                return;
+            }
+            
+            if (!workoutData[selectedWorkoutForLibrary]) {
+                alert('Cannot delete built-in workout templates');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete "${workoutData[selectedWorkoutForLibrary].name}"?`)) {
+                delete workoutData[selectedWorkoutForLibrary];
+                saveData();
+                populateWorkoutLibrary();
+                selectedWorkoutForLibrary = null;
+                alert('Workout deleted successfully');
+            }
+        }
+        
+        // Toggle exercise library
+        function toggleExerciseLibrary() {
+            const library = document.getElementById('exerciseLibrary');
+            const isVisible = library.style.display !== 'none';
+            library.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                populateExerciseLibrary();
+            }
+        }
+        
+        // Populate exercise library
+        function populateExerciseLibrary() {
+            filterExercises(currentExerciseFilter);
+        }
+        
+        // Filter exercises by category
+        function filterExercises(category) {
+            currentExerciseFilter = category;
+            const exerciseList = document.getElementById('exerciseList');
+            exerciseList.innerHTML = '';
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event?.target?.classList.add('active');
+            
+            let exercisesToShow = [];
+            
+            if (category === 'all') {
+                Object.entries(exerciseLibrary).forEach(([cat, exercises]) => {
+                    exercises.forEach(exercise => {
+                        exercisesToShow.push({ name: exercise, category: cat });
+                    });
+                });
+            } else {
+                if (exerciseLibrary[category]) {
+                    exerciseLibrary[category].forEach(exercise => {
+                        exercisesToShow.push({ name: exercise, category });
+                    });
+                }
+            }
+            
+            exercisesToShow.forEach(exercise => {
+                const exerciseItem = document.createElement('div');
+                exerciseItem.className = 'exercise-item';
+                exerciseItem.onclick = () => addExerciseToCurrentForm(exercise.name);
+                
+                exerciseItem.innerHTML = `
+                    <div class="exercise-item-name">${exercise.name}</div>
+                    <div class="exercise-item-category">${exercise.category}</div>
+                `;
+                
+                exerciseList.appendChild(exerciseItem);
+            });
+        }
+        
+        // Add new exercise to library
+        function addNewExercise() {
+            const name = document.getElementById('newExerciseName').value.trim();
+            const category = document.getElementById('exerciseCategory').value;
+            
+            if (!name) {
+                alert('Please enter an exercise name');
+                return;
+            }
+            
+            if (!exerciseLibrary[category]) {
+                exerciseLibrary[category] = [];
+            }
+            
+            if (exerciseLibrary[category].includes(name)) {
+                alert('Exercise already exists in this category');
+                return;
+            }
+            
+            exerciseLibrary[category].push(name);
+            document.getElementById('newExerciseName').value = '';
+            
+            if (currentExerciseFilter === 'all' || currentExerciseFilter === category) {
+                populateExerciseLibrary();
+            }
+            
+            alert(`"${name}" added to ${category} exercises!`);
+        }
+        
+        // Add exercise to current workout form
+        function addExerciseToCurrentForm(exerciseName) {
+            const form = document.getElementById('workoutForm');
+            if (form.style.display === 'none') {
+                toggleWorkoutForm();
+            }
+            
+            const isWeighted = exerciseName.toLowerCase().includes('dumbbell') || 
+                             exerciseName.toLowerCase().includes('weighted') ||
+                             exerciseName.toLowerCase().includes('barbell');
+            
+            addExerciseToForm(exerciseName, '3x10', isWeighted ? '20lbs' : '', isWeighted ? 'weighted' : 'bodyweight');
+            
+            alert(`"${exerciseName}" added to workout form!`);
+        }
+        
+        // Toggle progression planner
+        function toggleProgressionPlanner() {
+            const planner = document.getElementById('progressionPlanner');
+            const isVisible = planner.style.display !== 'none';
+            planner.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                initializeProgressionPlanner();
+            }
+        }
+        
+        // Initialize progression planner
+        function initializeProgressionPlanner() {
+            const today = new Date();
+            document.getElementById('planStartDate').value = today.toISOString().split('T')[0];
+            setProgressionView('overview');
+        }
+        
+        // Set progression view
+        function setProgressionView(view) {
+            currentProgressionView = view;
+            
+            // Update active button
+            document.querySelectorAll('.progression-controls .category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const buttons = document.querySelectorAll('#progressionPlanner .category-btn');
+            buttons.forEach(btn => {
+                const btnText = btn.textContent.trim();
+                if ((view === 'overview' && btnText === 'Overview') ||
+                    (view === 'assessment' && btnText.includes('Max Rep Test'))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Show/hide appropriate view
+            document.getElementById('progressionOverview').style.display = view === 'overview' ? 'block' : 'none';
+            document.getElementById('progressionAssessment').style.display = view === 'assessment' ? 'block' : 'none';
+            
+            // Display content for the selected view
+            if (view === 'assessment') {
+                displayMaxRepAssessment();
+            } else if (view === 'overview') {
+                displayProgressionOverview();
+            }
+        }
+        
+        // Display max rep assessment
+        function displayMaxRepAssessment() {
+            const container = document.getElementById('progressionAssessment');
+            
+            // Get all unique exercises from current workouts
+            const allExercises = new Set();
+            Object.values(defaultWorkouts).forEach(workout => {
+                workout.exercises.forEach(exercise => {
+                    allExercises.add(exercise.name);
+                });
+            });
+            
+            container.innerHTML = `
+                <div class="assessment-container">
+                    <div class="admin-title">🎯 Max Rep Assessment</div>
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Test your maximum reps for each exercise to build a personalized progression plan.
+                        Do these tests when fresh, with perfect form until failure.
+                    </p>
+                    
+                    <div id="exerciseAssessments"></div>
+                    
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="admin-btn" onclick="saveAssessments()" style="background: #28a745;">
+                            💾 Save Assessment & Generate Smart Plan
+                        </button>
+                        <button class="admin-btn" onclick="clearAssessments()" style="background: #dc3545; margin-left: 10px;">
+                            🗑️ Clear All
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            const assessmentsDiv = container.querySelector('#exerciseAssessments');
+            
+            Array.from(allExercises).sort().forEach(exerciseName => {
+                const assessment = maxRepAssessments[exerciseName] || { maxReps: '', maxWeight: '' };
+                
+                const assessmentDiv = document.createElement('div');
+                assessmentDiv.className = 'assessment-exercise';
+                
+                const isWeighted = exerciseName.toLowerCase().includes('dumbbell') || 
+                                 exerciseName.toLowerCase().includes('weighted') ||
+                                 exerciseName.toLowerCase().includes('barbell');
+                
+                let inputFields = `
+                    <div class="assessment-input-group">
+                        <span class="assessment-label">Max Reps:</span>
+                        <input type="number" class="assessment-input" 
+                               value="${assessment.maxReps}" 
+                               onchange="updateAssessment('${exerciseName}', 'maxReps', this.value)"
+                               placeholder="0" min="0" max="100">
+                        <span style="font-size: 12px; color: #666;">reps to failure</span>
+                    </div>
+                `;
+                
+                if (isWeighted) {
+                    inputFields += `
+                        <div class="assessment-input-group">
+                            <span class="assessment-label">Max Weight:</span>
+                            <input type="text" class="assessment-input" style="width: 100px;"
+                                   value="${assessment.maxWeight || ''}" 
+                                   onchange="updateAssessment('${exerciseName}', 'maxWeight', this.value)"
+                                   placeholder="e.g., 50lbs">
+                            <span style="font-size: 12px; color: #666;">heaviest weight used</span>
+                        </div>
+                    `;
+                }
+                
+                assessmentDiv.innerHTML = `
+                    <div class="assessment-exercise-name">${exerciseName}</div>
+                    ${inputFields}
+                    <div class="training-zones" id="zones-${exerciseName.replace(/\s+/g, '')}">
+                        <!-- Training zones will be populated here -->
+                    </div>
+                    <div class="assessment-recommendation" id="rec-${exerciseName.replace(/\s+/g, '')}">
+                        Enter your max reps to see training recommendations
+                    </div>
+                `;
+                
+                assessmentsDiv.appendChild(assessmentDiv);
+                
+                if (assessment.maxReps) {
+                    updateTrainingZones(exerciseName, assessment.maxReps);
+                }
+            });
+        }
+        
+        // Update assessment value
+        function updateAssessment(exerciseName, field, value) {
+            if (!maxRepAssessments[exerciseName]) {
+                maxRepAssessments[exerciseName] = {};
+            }
+            
+            maxRepAssessments[exerciseName][field] = value;
+            
+            if (field === 'maxReps' && value) {
+                updateTrainingZones(exerciseName, parseInt(value));
+            }
+        }
+        
+        // Update training zones display
+        function updateTrainingZones(exerciseName, maxReps) {
+            const safeExerciseName = exerciseName.replace(/\s+/g, '');
+            const zonesDiv = document.getElementById(`zones-${safeExerciseName}`);
+            const recDiv = document.getElementById(`rec-${safeExerciseName}`);
+            
+            if (!zonesDiv || !recDiv) return;
+            
+            const zones = [
+                { name: 'Volume', percentage: 65, color: 'volume', description: 'High volume training' },
+                { name: 'Endurance', percentage: 75, color: 'endurance', description: 'Muscular endurance' },
+                { name: 'Power', percentage: 85, color: 'power', description: 'Power development' },
+                { name: 'Strength', percentage: 95, color: 'strength', description: 'Max strength' }
+            ];
+            
+            zonesDiv.innerHTML = zones.map(zone => {
+                const targetReps = Math.round(maxReps * (zone.percentage / 100));
+                return `
+                    <div class="training-zone zone-${zone.color}">
+                        <div class="zone-percentage">${zone.percentage}%</div>
+                        <div class="zone-reps">${targetReps}</div>
+                        <div class="zone-label">${zone.name}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            const weeklyProgression = calculateWeeklyProgression(maxReps);
+            recDiv.innerHTML = `
+                <strong>📈 Recommended 8-week progression:</strong><br>
+                Weeks 1-2: ${weeklyProgression.volume} (Volume)<br>
+                Weeks 3-4: ${weeklyProgression.endurance} (Endurance)<br>
+                Weeks 5-6: ${weeklyProgression.power} (Power)<br>
+                Weeks 7-8: ${weeklyProgression.strength} (Strength)
+            `;
+        }
+        
+        // Calculate weekly progression recommendations
+        function calculateWeeklyProgression(maxReps) {
+            return {
+                volume: `4x${Math.round(maxReps * 0.65)}-${Math.round(maxReps * 0.70)}`,
+                endurance: `3x${Math.round(maxReps * 0.70)}-${Math.round(maxReps * 0.75)}`,
+                power: `3x${Math.round(maxReps * 0.75)}-${Math.round(maxReps * 0.80)}`,
+                strength: `2x${Math.round(maxReps * 0.80)}-${Math.round(maxReps * 0.85)}`
+            };
+        }
+        
+        // Save assessments
+        function saveAssessments() {
+            const hasAssessments = Object.keys(maxRepAssessments).some(key => 
+                maxRepAssessments[key].maxReps && maxRepAssessments[key].maxReps > 0
+            );
+            
+            if (!hasAssessments) {
+                alert('Please enter at least one max rep assessment before saving.');
+                return;
+            }
+            
+            saveData();
+            
+            // Automatically generate a smart plan based on assessments
+            generateSmartProgressionPlan();
+            
+            alert('Assessments saved and smart progression plan generated! Check the Overview tab to see your personalized plan.');
+        }
+        
+        // Generate smart progression plan based on max rep assessments
+        function generateSmartProgressionPlan() {
+            const startDate = new Date(document.getElementById('planStartDate').value || new Date());
+            const duration = parseInt(document.getElementById('planDuration').value) || 8;
+            
+            progressionPlan = {
+                startDate: startDate.toISOString(),
+                duration: duration,
+                weeks: {},
+                basedOnAssessments: true
+            };
+            
+            for (let week = 1; week <= duration; week++) {
+                progressionPlan.weeks[week] = {
+                    days: {}
+                };
+                
+                for (let day = 1; day <= 7; day++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(currentDate.getDate() + ((week - 1) * 7) + (day - 1));
+                    
+                    const isRestDay = day === 7 || day === 4; // Sunday and Thursday as rest days
+                    const workoutType = isRestDay ? 'rest' : (day % 2 === 1 ? 'Day1' : 'Day2');
+                    
+                    progressionPlan.weeks[week].days[day] = {
+                        date: currentDate.toISOString().split('T')[0],
+                        workoutType: workoutType,
+                        workout: isRestDay ? null : generateSmartProgressiveWorkout(workoutType, week),
+                        completed: false
+                    };
+                }
+            }
+            
+            // Switch to overview to show the generated plan
+            setProgressionView('overview');
+            displayProgressionOverview();
+        }
+        
+        // Generate progressive workout based on max rep assessments
+        function generateSmartProgressiveWorkout(workoutType, weekNumber) {
+            const baseWorkout = workoutData[workoutType] || defaultWorkouts[workoutType];
+            if (!baseWorkout) return null;
+            
+            const progressiveWorkout = {
+                name: `${baseWorkout.name} - Week ${weekNumber} (Smart)`,
+                exercises: baseWorkout.exercises.map(exercise => {
+                    return {
+                        name: exercise.name,
+                        sets: calculateSmartProgressiveSets(exercise.name, weekNumber),
+                        weight: exercise.weight ? calculateSmartProgressiveWeight(exercise.name, weekNumber) : undefined,
+                        type: exercise.type
+                    };
+                })
+            };
+            
+            return progressiveWorkout;
+        }
+        
+        // Calculate progressive sets based on max rep assessment
+        function calculateSmartProgressiveSets(exerciseName, weekNumber) {
+            const assessment = maxRepAssessments[exerciseName];
+            
+            if (!assessment || !assessment.maxReps) {
+                // Fallback to basic progression if no assessment
+                return progressSets('3x10', weekNumber);
+            }
+            
+            const maxReps = parseInt(assessment.maxReps);
+            
+            // 8-week periodized progression based on training zones
+            const weekPhase = ((weekNumber - 1) % 8) + 1;
+            
+            let targetPercentage;
+            let sets;
+            
+            if (weekPhase <= 2) {
+                // Volume phase: 65-70% of max reps
+                targetPercentage = 0.65 + (weekPhase - 1) * 0.025; // 65%, 67.5%
+                sets = 4;
+            } else if (weekPhase <= 4) {
+                // Endurance phase: 70-75% of max reps
+                targetPercentage = 0.70 + (weekPhase - 3) * 0.025; // 70%, 72.5%
+                sets = 3;
+            } else if (weekPhase <= 6) {
+                // Power phase: 75-80% of max reps
+                targetPercentage = 0.75 + (weekPhase - 5) * 0.025; // 75%, 77.5%
+                sets = 3;
+            } else {
+                // Strength phase: 80-85% of max reps
+                targetPercentage = 0.80 + (weekPhase - 7) * 0.025; // 80%, 82.5%
+                sets = 2;
+            }
+            
+            const targetReps = Math.max(1, Math.round(maxReps * targetPercentage));
+            
+            return `${sets}x${targetReps}`;
+        }
+        
+        // Calculate progressive weight based on max weight assessment
+        function calculateSmartProgressiveWeight(exerciseName, weekNumber) {
+            const assessment = maxRepAssessments[exerciseName];
+            
+            if (!assessment || !assessment.maxWeight) {
+                // Fallback to basic weight progression
+                const currentWorkout = workoutData[getCurrentWorkoutKey()];
+                const exercise = currentWorkout?.exercises?.find(ex => ex.name === exerciseName);
+                if (exercise && exercise.weight) {
+                    return progressWeight(exercise.weight, weekNumber);
+                }
+                return '30lbs'; // Default
+            }
+            
+            const maxWeightMatch = assessment.maxWeight.match(/(\d+(?:\.\d+)?)\s*(\w+)/);
+            if (!maxWeightMatch) {
+                return assessment.maxWeight; // Return as-is if can't parse
+            }
+            
+            const maxWeight = parseFloat(maxWeightMatch[1]);
+            const unit = maxWeightMatch[2];
+            
+            // Progressive weight based on week and training phase
+            const weekPhase = ((weekNumber - 1) % 8) + 1;
+            
+            let weightPercentage;
+            
+            if (weekPhase <= 2) {
+                // Volume phase: 60-65% of max weight
+                weightPercentage = 0.60 + (weekPhase - 1) * 0.025;
+            } else if (weekPhase <= 4) {
+                // Endurance phase: 65-70% of max weight
+                weightPercentage = 0.65 + (weekPhase - 3) * 0.025;
+            } else if (weekPhase <= 6) {
+                // Power phase: 70-75% of max weight
+                weightPercentage = 0.70 + (weekPhase - 5) * 0.025;
+            } else {
+                // Strength phase: 75-80% of max weight
+                weightPercentage = 0.75 + (weekPhase - 7) * 0.025;
+            }
+            
+            const targetWeight = Math.round(maxWeight * weightPercentage * 2) / 2; // Round to nearest 2.5
+            
+            return `${targetWeight}${unit}`;
+        }
+        
+        // Clear assessments
+        function clearAssessments() {
+            if (confirm('Are you sure you want to clear all max rep assessments?')) {
+                maxRepAssessments = {};
+                displayMaxRepAssessment();
+                saveData();
+            }
+        }
+        
+        // === WEEKLY PLAN BUILDER ===
+        
+        // Toggle weekly planner
+        function toggleWeeklyPlanner() {
+            const planner = document.getElementById('weeklyPlanner');
+            const isVisible = planner.style.display !== 'none';
+            planner.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                initializeWeeklyPlanner();
+            }
+        }
+        
+        // Initialize weekly planner
+        function initializeWeeklyPlanner() {
+            populateWorkoutDropdowns();
+            loadCurrentWeeklyPlan();
+        }
+        
+        // Populate workout dropdowns
+        function populateWorkoutDropdowns() {
+            const allWorkouts = { ...workoutData, ...workoutTemplates };
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            
+            days.forEach(day => {
+                const select = document.getElementById(`${day}-select`);
+                if (!select) return;
+                
+                // Clear existing options except first two
+                while (select.children.length > 2) {
+                    select.removeChild(select.lastChild);
+                }
+                
+                // Add workout options
+                Object.entries(allWorkouts).forEach(([key, workout]) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = `💪 ${workout.name}`;
+                    select.appendChild(option);
+                });
+                
+                // Add change listener
+                select.onchange = () => updateWorkoutPreview(day, select.value);
+            });
+        }
+        
+        // Update workout preview
+        function updateWorkoutPreview(day, workoutKey) {
+            const preview = document.getElementById(`${day}-preview`);
+            if (!preview) return;
+            
+            if (workoutKey === 'rest') {
+                preview.className = 'workout-preview rest-day';
+                preview.innerHTML = '🛌 Rest & Recovery';
+            } else if (workoutKey === '') {
+                preview.className = 'workout-preview';
+                preview.innerHTML = 'Select a workout to see preview';
+            } else {
+                const workout = workoutData[workoutKey] || workoutTemplates[workoutKey];
+                if (workout) {
+                    preview.className = 'workout-preview has-workout';
+                    const exerciseList = workout.exercises.slice(0, 3).map(ex => 
+                        `• ${ex.name} ${ex.sets}${ex.weight ? ' @ ' + ex.weight : ''}`
+                    ).join('\n');
+                    const moreText = workout.exercises.length > 3 ? `\n+ ${workout.exercises.length - 3} more exercises` : '';
+                    preview.innerHTML = `<strong>${workout.name}</strong>\n${exerciseList}${moreText}`;
+                }
+            }
+        }
+        
+        // Load current weekly plan
+        function loadCurrentWeeklyPlan() {
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            
+            days.forEach(day => {
+                const select = document.getElementById(`${day}-select`);
+                if (select && weeklyPlan[day]) {
+                    select.value = weeklyPlan[day];
+                    updateWorkoutPreview(day, weeklyPlan[day]);
+                }
+            });
+        }
+        
+        // Apply weekly template
+        function applyWeeklyTemplate(templateType) {
+            const templates = {
+                pushPull: {
+                    monday: 'Push_Dominant',
+                    tuesday: 'Pull_Dominant', 
+                    wednesday: 'rest',
+                    thursday: 'Push_Dominant',
+                    friday: 'Pull_Dominant',
+                    saturday: 'rest',
+                    sunday: 'rest'
+                },
+                upperLower: {
+                    monday: 'Day1',
+                    tuesday: 'rest',
+                    wednesday: 'Day2',
+                    thursday: 'rest',
+                    friday: 'Day1',
+                    saturday: 'Day2',
+                    sunday: 'rest'
+                },
+                fullBody: {
+                    monday: 'TRX_Focus',
+                    tuesday: 'rest',
+                    wednesday: 'Ring_Mastery',
+                    thursday: 'rest',
+                    friday: 'Push_Dominant',
+                    saturday: 'rest',
+                    sunday: 'rest'
+                },
+                powerEndurance: {
+                    monday: 'Ring_Mastery',
+                    tuesday: 'TRX_Focus',
+                    wednesday: 'rest',
+                    thursday: 'Advanced_Challenge',
+                    friday: 'rest',
+                    saturday: 'Pull_Dominant',
+                    sunday: 'rest'
+                }
+            };
+            
+            const template = templates[templateType];
+            if (!template) return;
+            
+            Object.entries(template).forEach(([day, workoutKey]) => {
+                const select = document.getElementById(`${day}-select`);
+                if (select) {
+                    select.value = workoutKey;
+                    updateWorkoutPreview(day, workoutKey);
+                }
+            });
+            
+            alert(`✅ Applied ${templateType} template!\nClick "Apply This Weekly Plan" to save it.`);
+        }
+        
+        // Save weekly plan
+        function saveWeeklyPlan() {
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            const newPlan = {};
+            
+            days.forEach(day => {
+                const select = document.getElementById(`${day}-select`);
+                if (select && select.value) {
+                    newPlan[day] = select.value;
+                }
+            });
+            
+            weeklyPlan = newPlan;
+            saveData();
+            updateDisplay(); // Refresh the main view
+            toggleWeeklyPlanner(); // Close the planner
+            
+            alert('✅ Weekly plan applied successfully!\n\nYour daily workouts will now follow this schedule.');
+        }
+        
+        // Clear weekly plan
+        function clearWeeklyPlan() {
+            if (confirm('Are you sure you want to clear the weekly plan?\n\nThis will revert to the default Day1/Day2 rotation.')) {
+                weeklyPlan = {};
+                
+                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                days.forEach(day => {
+                    const select = document.getElementById(`${day}-select`);
+                    if (select) {
+                        select.value = '';
+                        updateWorkoutPreview(day, '');
+                    }
+                });
+                
+                saveData();
+                updateDisplay();
+                alert('✅ Weekly plan cleared. Reverted to Day1/Day2 rotation.');
+            }
+        }
+        
+        // Override rest day
+        function overrideRestDay() {
+            toggleWeeklyPlanner();
+            alert('Use the Weekly Plan Builder to change today from a rest day to a workout day.');
+        }
+        
+        // Generate progression plan
+        function generateProgressionPlan() {
+            const startDate = new Date(document.getElementById('planStartDate').value);
+            const duration = parseInt(document.getElementById('planDuration').value);
+            
+            if (!startDate || isNaN(startDate.getTime())) {
+                alert('Please select a valid start date');
+                return;
+            }
+            
+            progressionPlan = {
+                startDate: startDate.toISOString(),
+                duration: duration,
+                weeks: {}
+            };
+            
+            for (let week = 1; week <= duration; week++) {
+                progressionPlan.weeks[week] = {
+                    days: {}
+                };
+                
+                for (let day = 1; day <= 7; day++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(currentDate.getDate() + ((week - 1) * 7) + (day - 1));
+                    
+                    const isRestDay = day === 7 || day === 4;
+                    const workoutType = isRestDay ? 'rest' : (day % 2 === 1 ? 'Day1' : 'Day2');
+                    
+                    progressionPlan.weeks[week].days[day] = {
+                        date: currentDate.toISOString().split('T')[0],
+                        workoutType: workoutType,
+                        workout: isRestDay ? null : generateProgressiveWorkout(workoutType, week),
+                        completed: false
+                    };
+                }
+            }
+            
+            displayProgressionOverview();
+            alert('Progression plan generated successfully!');
+        }
+        
+        // Generate progressive workout
+        function generateProgressiveWorkout(workoutType, weekNumber) {
+            const baseWorkout = workoutData[workoutType] || defaultWorkouts[workoutType];
+            if (!baseWorkout) return null;
+            
+            const progressiveWorkout = {
+                name: `${baseWorkout.name} - Week ${weekNumber}`,
+                exercises: baseWorkout.exercises.map(exercise => {
+                    return {
+                        name: exercise.name,
+                        sets: progressSets(exercise.sets, weekNumber),
+                        weight: exercise.weight ? progressWeight(exercise.weight, weekNumber) : undefined,
+                        type: exercise.type
+                    };
+                })
+            };
+            
+            return progressiveWorkout;
+        }
+        
+        // Progress sets
+        function progressSets(originalSets, weekNumber) {
+            const [sets, reps] = originalSets.split('x');
+            const numSets = parseInt(sets);
+            const baseReps = parseInt(reps);
+            
+            const repIncrease = Math.floor((weekNumber - 1) / 2);
+            const setIncrease = Math.floor((weekNumber - 1) / 4);
+            
+            const newSets = numSets + setIncrease;
+            const newReps = baseReps + repIncrease;
+            
+            return `${newSets}x${newReps}`;
+        }
+        
+        // Progress weight
+        function progressWeight(originalWeight, weekNumber) {
+            const weightMatch = originalWeight.match(/(\d+(?:\.\d+)?)\s*(\w+)/);
+            if (!weightMatch) return originalWeight;
+            
+            const weight = parseFloat(weightMatch[1]);
+            const unit = weightMatch[2];
+            const weeklyIncrease = 2.5;
+            
+            const newWeight = weight + (weekNumber - 1) * weeklyIncrease;
+            return `${newWeight}${unit}`;
+        }
+        
+        // Display progression overview
+        function displayProgressionOverview() {
+            const container = document.getElementById('progressionOverview');
+            
+            if (!progressionPlan.weeks || Object.keys(progressionPlan.weeks).length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">No progression plan generated. Set dates above and click "Generate Plan".</p>';
+                return;
+            }
+            
+            container.innerHTML = '<div class="progression-overview"></div>';
+            const overviewDiv = container.querySelector('.progression-overview');
+            
+            // Get unique exercises
+            const exercises = new Set();
+            Object.values(progressionPlan.weeks).forEach(week => {
+                Object.values(week.days).forEach(day => {
+                    if (day.workout && day.workout.exercises) {
+                        day.workout.exercises.forEach(ex => exercises.add(ex.name));
+                    }
+                });
+            });
+            
+            // Create cards for each exercise showing progression
+            Array.from(exercises).forEach(exerciseName => {
+                const card = document.createElement('div');
+                card.className = 'exercise-progression-card';
+                
+                const weekProgressions = [];
+                Object.entries(progressionPlan.weeks).forEach(([weekNum, weekData]) => {
+                    Object.values(weekData.days).forEach(day => {
+                        if (day.workout && day.workout.exercises) {
+                            const exercise = day.workout.exercises.find(ex => ex.name === exerciseName);
+                            if (exercise && !weekProgressions.find(p => p.week === parseInt(weekNum))) {
+                                weekProgressions.push({
+                                    week: parseInt(weekNum),
+                                    sets: exercise.sets,
+                                    weight: exercise.weight
+                                });
+                            }
+                        }
+                    });
+                });
+                
+                weekProgressions.sort((a, b) => a.week - b.week);
+                
+                const progressionViz = weekProgressions.map((prog, index) => {
+                    const intensity = calculateIntensity(prog.sets);
+                    const intensityClass = intensity <= 20 ? 'low' : intensity <= 35 ? 'medium' : 'high';
+                    
+                    return `
+                        <div class="week-indicator ${intensityClass}" title="Week ${prog.week}: ${prog.sets}${prog.weight ? ' @ ' + prog.weight : ''}">
+                            ${prog.week}
+                        </div>
+                        ${index < weekProgressions.length - 1 ? '<div class="progression-arrow">→</div>' : ''}
+                    `;
+                }).join('');
+                
+                const startSets = weekProgressions[0]?.sets || '0x0';
+                const endSets = weekProgressions[weekProgressions.length - 1]?.sets || '0x0';
+                const startWeight = weekProgressions[0]?.weight || '';
+                const endWeight = weekProgressions[weekProgressions.length - 1]?.weight || '';
+                
+                let progressionText = `${startSets} → ${endSets}`;
+                if (startWeight && endWeight) {
+                    progressionText += ` | ${startWeight} → ${endWeight}`;
+                }
+                
+                card.innerHTML = `
+                    <div class="exercise-name-large">${exerciseName}</div>
+                    <div class="progression-visualization">
+                        ${progressionViz}
+                    </div>
+                    <div class="progression-summary">
+                        ${progressionText}
+                    </div>
+                `;
+                
+                overviewDiv.appendChild(card);
+            });
+        }
+        
+        // Calculate intensity
+        function calculateIntensity(setsStr) {
+            const [sets, reps] = setsStr.split('x').map(n => parseInt(n) || 0);
+            return sets * reps;
+        }
+        
+        // Apply progression template
+        function applyProgressionTemplate(templateType) {
+            if (!progressionPlan.weeks || Object.keys(progressionPlan.weeks).length === 0) {
+                alert('Please generate a plan first');
+                return;
+            }
+            
+            // Reapply progression with different logic based on template
+            Object.entries(progressionPlan.weeks).forEach(([weekNum, weekData]) => {
+                Object.entries(weekData.days).forEach(([dayNum, dayData]) => {
+                    if (dayData.workoutType !== 'rest' && dayData.workout) {
+                        dayData.workout = applyProgressionToWorkout(dayData.workout, parseInt(weekNum), templateType);
+                    }
+                });
+            });
+            
+            displayProgressionOverview();
+            alert(`${templateType} progression template applied!`);
+        }
+        
+        // Apply specific progression to workout
+        function applyProgressionToWorkout(workout, weekNum, templateType) {
+            const newWorkout = { ...workout };
+            
+            newWorkout.exercises = workout.exercises.map(exercise => {
+                let newSets = exercise.sets;
+                let newWeight = exercise.weight;
+                
+                switch (templateType) {
+                    case 'linear':
+                        newSets = progressSets(exercise.sets, weekNum);
+                        if (exercise.weight) {
+                            newWeight = progressWeight(exercise.weight, weekNum);
+                        }
+                        break;
+                    case 'wave':
+                        const waveWeek = ((weekNum - 1) % 3) + 1;
+                        const progressFactor = Math.floor((weekNum - 1) / 3) * 2 + waveWeek;
+                        newSets = progressSets(exercise.sets, progressFactor);
+                        if (exercise.weight) {
+                            newWeight = progressWeight(exercise.weight, progressFactor);
+                        }
+                        break;
+                    case 'pyramid':
+                        const totalWeeks = Object.keys(progressionPlan.weeks).length;
+                        const peakWeek = Math.ceil(totalWeeks / 2);
+                        const pyramidFactor = weekNum <= peakWeek ? weekNum : (totalWeeks - weekNum + 1);
+                        newSets = progressSets(exercise.sets, pyramidFactor);
+                        if (exercise.weight) {
+                            newWeight = progressWeight(exercise.weight, pyramidFactor);
+                        }
+                        break;
+                }
+                
+                return { 
+                    ...exercise, 
+                    sets: newSets,
+                    weight: newWeight
+                };
+            });
+            
+            return newWorkout;
+        }
+        
+        // Save progression plan
+        function saveProgressionPlan() {
+            if (!progressionPlan.weeks || Object.keys(progressionPlan.weeks).length === 0) {
+                alert('No progression plan to save');
+                return;
+            }
+            
+            saveData();
+            alert('Progression plan saved successfully!');
+        }
+        
+        // Load smart plan for today
+        function loadSmartPlanForToday() {
+            if (!progressionPlan.basedOnAssessments || !progressionPlan.weeks || Object.keys(progressionPlan.weeks).length === 0) {
+                alert('No smart progression plan found. Please create one by:\n1. Going to Max Rep Test\n2. Entering your max reps\n3. Clicking "Save Assessment & Generate Smart Plan"');
+                return;
+            }
+            
+            // Find the appropriate week and workout for today
+            const today = new Date();
+            const planStartDate = new Date(progressionPlan.startDate);
+            
+            // Calculate which week we're in
+            const daysDiff = Math.floor((today - planStartDate) / (1000 * 60 * 60 * 24));
+            const currentWeek = Math.floor(daysDiff / 7) + 1;
+            
+            // If we're past the plan duration, use the last week
+            const weekToUse = Math.min(currentWeek, progressionPlan.duration);
+            
+            if (weekToUse < 1) {
+                alert('The smart plan starts in the future. Please generate a new plan with today\'s date.');
+                return;
+            }
+            
+            // Determine workout type for today
+            const todayWorkoutType = getCurrentWorkoutKey(); // Day1 or Day2
+            
+            // Find a workout of the right type from the current week
+            const weekData = progressionPlan.weeks[weekToUse];
+            if (!weekData) {
+                alert(`Week ${weekToUse} not found in progression plan.`);
+                return;
+            }
+            
+            let smartWorkout = null;
+            Object.values(weekData.days).forEach(day => {
+                if (day.workoutType === todayWorkoutType && day.workout) {
+                    smartWorkout = day.workout;
+                }
+            });
+            
+            if (!smartWorkout) {
+                alert(`No smart workout found for ${todayWorkoutType} in week ${weekToUse}.`);
+                return;
+            }
+            
+            // Load the smart workout into today's workout
+            workoutData[todayWorkoutType] = { ...smartWorkout };
+            
+            saveData();
+            updateDisplay();
+            toggleProgressionPlanner(); // Close the progression planner
+            
+            alert(`✅ Smart workout loaded for today!\n\nWorkout: ${smartWorkout.name}\nWeek ${weekToUse} of your personalized progression plan`);
+        }
+        
+        // Enhanced load progression plan to show smart plan info
+        function loadProgressionPlan() {
+            if (Object.keys(progressionPlan).length > 0) {
+                displayProgressionOverview();
+                
+                if (progressionPlan.basedOnAssessments) {
+                    alert('✅ Smart progression plan loaded!\n\nThis plan is based on your max rep assessments.\nUse "Load Smart Plan for Today" to apply it to your daily workouts.');
+                } else {
+                    alert('Progression plan loaded successfully!');
+                }
+            } else {
+                alert('No saved progression plan found');
+            }
+        }
+        
+        // Toggle workout form
+        function toggleWorkoutForm() {
+            const form = document.getElementById('workoutForm');
+            const isVisible = form.style.display !== 'none';
+            form.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                clearWorkoutForm();
+            }
+        }
+        
+        // Clear workout form
+        function clearWorkoutForm() {
+            document.getElementById('workoutName').value = '';
+            const exercisesList = document.getElementById('exercisesList');
+            if (exercisesList) {
+                exercisesList.innerHTML = '';
+            }
+            addExercise();
+            
+            const form = document.getElementById('workoutForm');
+            if (form) {
+                const saveBtn = form.querySelector('button[onclick*="Workout"]');
+                if (saveBtn) {
+                    saveBtn.textContent = 'Save Workout';
+                    saveBtn.setAttribute('onclick', 'saveWorkout()');
+                }
+            }
+        }
+        
+        // Edit current workout
+        function editCurrentWorkout() {
+            const workoutKey = getCurrentWorkoutKey();
+            const workout = workoutData[workoutKey];
+            
+            if (!workout) {
+                alert('No workout found for today');
+                return;
+            }
+            
+            document.getElementById('workoutName').value = workout.name;
+            document.getElementById('exercisesList').innerHTML = '';
+            
+            workout.exercises.forEach(exercise => {
+                addExerciseToForm(exercise.name, exercise.sets, exercise.weight, exercise.type);
+            });
+            
+            document.getElementById('workoutForm').style.display = 'block';
+            
+            const saveBtn = document.querySelector('#workoutForm button[onclick*="saveWorkout"]');
+            if (saveBtn) {
+                saveBtn.textContent = 'Update Workout';
+                saveBtn.setAttribute('onclick', 'updateCurrentWorkout()');
+            }
+        }
+        
+        // Add exercise to form
+        function addExerciseToForm(name = '', sets = '', weight = '', type = 'bodyweight') {
+            const exercisesList = document.getElementById('exercisesList');
+            const exerciseTemplate = document.createElement('div');
+            exerciseTemplate.className = 'exercise-template';
+            exerciseTemplate.innerHTML = `
+                <button class="remove-exercise" onclick="removeExercise(this)">×</button>
+                <div class="form-group">
+                    <label class="form-label">Exercise Name:</label>
+                    <input type="text" class="form-input exercise-name-input" value="${name}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sets x Reps:</label>
+                    <input type="text" class="form-input sets-reps-input" value="${sets}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Weight (optional):</label>
+                    <input type="text" class="form-input weight-input" value="${weight || ''}" placeholder="e.g., 25lbs">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Type:</label>
+                    <select class="form-input exercise-type-select">
+                        <option value="bodyweight" ${type === 'bodyweight' ? 'selected' : ''}>💪 Bodyweight</option>
+                        <option value="weighted" ${type === 'weighted' ? 'selected' : ''}>🏋️ Weighted</option>
+                    </select>
+                </div>
+            `;
+            exercisesList.appendChild(exerciseTemplate);
+        }
+        
+        // Add exercise
+        function addExercise() {
+            addExerciseToForm();
+        }
+        
+        // Remove exercise
+        function removeExercise(button) {
+            button.parentElement.remove();
+        }
+        
+        // Update current workout
+        function updateCurrentWorkout() {
+            const workoutKey = getCurrentWorkoutKey();
+            const workoutName = document.getElementById('workoutName').value;
+            
+            if (!workoutName) {
+                alert('Please enter a workout name');
+                return;
+            }
+            
+            const exercises = [];
+            const exerciseTemplates = document.querySelectorAll('.exercise-template');
+            
+            exerciseTemplates.forEach(template => {
+                const name = template.querySelector('.exercise-name-input')?.value;
+                const sets = template.querySelector('.sets-reps-input')?.value;
+                const weight = template.querySelector('.weight-input')?.value;
+                const type = template.querySelector('.exercise-type-select')?.value;
+                
+                if (name && sets) {
+                    const exercise = { 
+                        name: name.trim(), 
+                        sets: sets.trim(), 
+                        type: type || 'bodyweight' 
+                    };
+                    
+                    if (weight && weight.trim()) {
+                        exercise.weight = weight.trim();
+                        exercise.type = 'weighted';
+                    }
+                    
+                    exercises.push(exercise);
+                }
+            });
+            
+            if (exercises.length === 0) {
+                alert('Please add at least one exercise');
+                return;
+            }
+            
+            workoutData[workoutKey] = { name: workoutName, exercises };
+            
+            saveData();
+            document.getElementById('workoutForm').style.display = 'none';
+            updateDisplay();
+            
+            alert('Workout updated successfully!');
+        }
+        
+        // Save workout
+        function saveWorkout() {
+            const workoutName = document.getElementById('workoutName').value;
+            if (!workoutName) {
+                alert('Please enter a workout name');
+                return;
+            }
+            
+            const exercises = [];
+            const exerciseTemplates = document.querySelectorAll('.exercise-template');
+            
+            exerciseTemplates.forEach(template => {
+                const name = template.querySelector('.exercise-name-input')?.value;
+                const sets = template.querySelector('.sets-reps-input')?.value;
+                const weight = template.querySelector('.weight-input')?.value;
+                const type = template.querySelector('.exercise-type-select')?.value;
+                
+                if (name && sets) {
+                    const exercise = { 
+                        name: name.trim(), 
+                        sets: sets.trim(), 
+                        type: type || 'bodyweight' 
+                    };
+                    
+                    if (weight && weight.trim()) {
+                        exercise.weight = weight.trim();
+                        exercise.type = 'weighted';
+                    }
+                    
+                    exercises.push(exercise);
+                }
+            });
+            
+            if (exercises.length === 0) {
+                alert('Please add at least one exercise');
+                return;
+            }
+            
+            const workoutKey = 'Custom' + Date.now();
+            workoutData[workoutKey] = { name: workoutName, exercises };
+            
+            saveData();
+            toggleWorkoutForm();
+            alert('Workout saved successfully!');
+        }
+        
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify({ workoutData, workoutProgress, progressionPlan }, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'workout-data.json';
+            link.click();
+        }
+        
+        // Reset progress
+        function resetProgress() {
+            const dateKey = currentDate.toDateString();
+            if (workoutProgress[dateKey]) {
+                delete workoutProgress[dateKey];
+                saveData();
+                updateDisplay();
+                alert('✅ Today\'s progress has been reset. All checkmarks cleared.');
+            } else {
+                alert('No progress found for today to reset.');
+            }
+        }
+        
+        // Reset to default workout
+        function resetToDefaultWorkout() {
+            const workoutKey = getCurrentWorkoutKey();
+            const defaultWorkout = defaultWorkouts[workoutKey];
+            
+            if (!defaultWorkout) {
+                alert('No default workout found for today.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to reset today\'s workout to the default? This will:\n\n• Replace the current workout with the original default\n• Keep your progress checkmarks\n• Remove any smart plan customizations')) {
+                // Reset to default workout
+                workoutData[workoutKey] = JSON.parse(JSON.stringify(defaultWorkout));
+                
+                saveData();
+                updateDisplay();
+                
+                alert('✅ Workout reset to default!\n\nYou now have the original workout back. Your progress checkmarks have been preserved.');
+            }
+        }
+        
+        // Save data
+        function saveData() {
+            const data = { workoutData, workoutProgress, progressionPlan, maxRepAssessments, weeklyPlan };
+            window.appData = JSON.stringify(data);
+        }
+        
+        // Load data
+        function loadData() {
+            try {
+                if (window.appData) {
+                    const data = JSON.parse(window.appData);
+                    workoutData = data.workoutData || {};
+                    workoutProgress = data.workoutProgress || {};
+                    progressionPlan = data.progressionPlan || {};
+                    maxRepAssessments = data.maxRepAssessments || {};
+                    weeklyPlan = data.weeklyPlan || {};
+                }
+            } catch (e) {
+                console.log('No previous data found');
+            }
+        }
+        
+        // Initialize app when page loads
+        init();
+    </script>
+</body>
+</html>
