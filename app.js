@@ -26,13 +26,14 @@ class WorkoutTracker {
             const isFirstTime = !this.userSettings.completedOnboarding && 
                               Object.keys(this.workoutHistory).length === 0;
             
+            // Always initialize exercise selector
+            this.initializeExerciseSelector();
+            
             if (isFirstTime) {
                 console.log('First-time user detected, starting onboarding');
                 this.currentView = 'onboarding';
                 this.onboardingStep = 1;
                 this.initializeOnboarding();
-            } else {
-                this.initializeExerciseSelector();
             }
             
             this.render();
@@ -200,10 +201,9 @@ class WorkoutTracker {
     postRender() {
         // Only initialize components that are needed for the current view
         if (this.currentView === 'builder') {
+            // Initialize workout builder but don't auto-render the drag-and-drop interface
             this.initializeWorkoutBuilder();
-            if (this.workoutBuilder) {
-                this.workoutBuilder.initializeBuilder();
-            }
+            // The simplified builder interface is now in the HTML template
         } else if (this.currentView === 'history') {
             this.initializeHistoryCalendar();
         } else if (this.currentView === 'progress') {

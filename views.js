@@ -54,9 +54,17 @@ WorkoutTracker.prototype.getBuilderViewHTML = function() {
                 <div class="workout-builder-section">
                     <div id="workoutBuilderContainer">
                         <div class="simple-builder-state">
-                            <h2>Quick Start Options</h2>
-                            <button data-action="add-exercise" class="primary-btn large-btn">+ Add Exercise</button>
-                            <p>Or select an existing workout to edit below</p>
+                            <h2>Build Your Workout</h2>
+                            <p>Choose how you'd like to create your workout:</p>
+                            <div class="builder-options">
+                                <button onclick="app.exerciseSelector.showSelector()" class="primary-btn large-btn">
+                                    📋 Browse Exercises
+                                </button>
+                                <button data-action="create-new-workout" class="secondary-btn large-btn">
+                                    🏗️ Start from Scratch
+                                </button>
+                            </div>
+                            <p><em>Or select an existing workout to edit below</em></p>
                         </div>
                     </div>
                 </div>
