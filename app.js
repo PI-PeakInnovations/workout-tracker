@@ -106,6 +106,15 @@ class WorkoutTracker {
             case 'toggle-theme':
                 this.toggleTheme();
                 break;
+            case 'export-data':
+                this.exportData();
+                break;
+            case 'import-data':
+                this.importData();
+                break;
+            case 'clear-data':
+                this.clearAllData();
+                break;
             case 'prev-day':
                 this.changeDay(-1);
                 break;
@@ -130,6 +139,17 @@ class WorkoutTracker {
                     this.onboardingFlow?.handleOnboardingAction(action, data);
                 }
                 break;
+        }
+    }
+
+    handleChange(event) {
+        const target = event.target;
+        
+        // Settings changes
+        if (target.matches('[data-setting]')) {
+            const setting = target.getAttribute('data-setting');
+            this.userSettings[setting] = target.value;
+            this.saveData();
         }
     }
 
@@ -375,6 +395,128 @@ class WorkoutTracker {
             this.historyCalendar = new HistoryCalendar(this);
             this.historyCalendar.setupEventListeners();
         }
+    }
+
+    // Settings functionality
+    async exportData() {
+        try {
+            const data = await this.dataManager.exportData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `workout-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showMessage('Data exported successfully!', 'success');
+        } catch (error) {
+            this.showMessage('Failed to export data: ' + error.message, 'error');
+        }
+    }
+
+    importData() {
+        const input = document.getElementById('importFile');
+        if (!input) {
+            // Create file input dynamically
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            fileInput.addEventListener('change', this.handleFileImport.bind(this));
+            fileInput.click();
+        } else {
+            input.click();
+            input.addEventListener('change', this.handleFileImport.bind(this));
+        }
+    }
+
+    async handleFileImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        try {
+            const text = await file.text();
+            const data = JSON.parse(text);
+            
+            // Validate the imported data structure
+            if (!data.workoutData && !data.workoutHistory) {
+                throw new Error('Invalid backup file format');
+            }
+            
+            if (confirm('This will replace all your current data. Are you sure?')) {
+                await this.dataManager.importData(data);
+                
+                // Reload the data
+                await this.loadData();
+                this.render();
+                
+                this.showMessage('Data imported successfully!', 'success');
+            }
+        } catch (error) {
+            this.showMessage('Failed to import data: ' + error.message, 'error');
+        }
+    }
+
+    async clearAllData() {
+        if (confirm('This will permanently delete ALL your workout data. Are you absolutely sure?')) {
+            if (confirm('This cannot be undone. Click OK to proceed with deleting all data.')) {
+                try {
+                    await this.dataManager.clearAllData();
+                    
+                    // Reset to defaults
+                    this.workoutData = this.getDefaultWorkouts();
+                    this.workoutHistory = {};
+                    this.workoutProgress = {};
+                    this.userSettings = {
+                        theme: 'light',
+                        units: 'imperial',
+                        defaultRestTime: 60,
+                        completedOnboarding: false
+                    };
+                    
+                    await this.saveData();
+                    
+                    // Restart onboarding
+                    this.initializeOnboarding();
+                    if (this.onboardingFlow?.checkIfFirstTime()) {
+                        this.onboardingFlow.startOnboarding();
+                    }
+                    
+                    this.render();
+                    this.showMessage('All data cleared successfully!', 'success');
+                } catch (error) {
+                    this.showMessage('Failed to clear data: ' + error.message, 'error');
+                }
+            }
+        }
+    }
+
+    showMessage(message, type = 'info') {
+        const messageEl = document.createElement('div');
+        messageEl.className = `message ${type}`;
+        messageEl.textContent = message;
+        messageEl.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: ${type === 'success' ? 'var(--success-color)' : type === 'error' ? 'var(--danger-color)' : 'var(--primary-color)'};
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 12px var(--shadow);
+        `;
+        
+        document.body.appendChild(messageEl);
+        
+        setTimeout(() => {
+            messageEl.remove();
+        }, 4000);
     }
 }
 
