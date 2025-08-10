@@ -401,7 +401,14 @@ WorkoutTracker.prototype.initializeOnboarding = function() {
         
         // Check if this is a first-time user
         if (this.onboardingFlow.checkIfFirstTime()) {
+            console.log('First time user detected, starting onboarding');
             this.onboardingFlow.startOnboarding();
+        } else {
+            console.log('Not first time user:', {
+                workoutKeys: Object.keys(this.workoutData),
+                hasHistory: Object.keys(this.workoutHistory).length > 0,
+                completedOnboarding: this.userSettings.completedOnboarding
+            });
         }
     }
 };

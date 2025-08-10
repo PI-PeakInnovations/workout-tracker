@@ -22,6 +22,16 @@ class WorkoutTracker {
         this.setupEventListeners();
         this.initializeOnboarding();
         this.initializeExerciseSelector();
+        
+        // Force onboarding for truly first-time users (incognito mode)
+        if (!this.userSettings.completedOnboarding && 
+            Object.keys(this.workoutHistory).length === 0 &&
+            (!localStorage.getItem || !localStorage.getItem('workout-tracker-data'))) {
+            console.log('Forcing onboarding for new user');
+            this.currentView = 'onboarding';
+            this.onboardingStep = 1;
+        }
+        
         this.render();
     }
 
@@ -181,14 +191,16 @@ class WorkoutTracker {
     }
 
     postRender() {
-        // Initialize any dynamic components after render
-        this.initializeWorkoutBuilder();
-        this.initializeHistoryCalendar();
-        this.initializeCharts();
-        
-        // Initialize the workout builder for the builder view
-        if (this.currentView === 'builder' && this.workoutBuilder) {
-            this.workoutBuilder.initializeBuilder();
+        // Only initialize components that are needed for the current view
+        if (this.currentView === 'builder') {
+            this.initializeWorkoutBuilder();
+            if (this.workoutBuilder) {
+                this.workoutBuilder.initializeBuilder();
+            }
+        } else if (this.currentView === 'history') {
+            this.initializeHistoryCalendar();
+        } else if (this.currentView === 'progress') {
+            this.initializeCharts();
         }
     }
 
