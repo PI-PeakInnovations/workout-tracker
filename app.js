@@ -322,8 +322,17 @@ class WorkoutTracker {
     }
 
     removeExercise(exerciseIndex) {
-        const workoutKey = this.getCurrentWorkoutKey();
-        this.workoutData[workoutKey].exercises.splice(exerciseIndex, 1);
+        const today = this.formatDate(this.currentDate);
+        
+        // If we have started today's workout, remove from today's data
+        if (this.workoutHistory[today]) {
+            this.workoutHistory[today].exercises.splice(exerciseIndex, 1);
+        } else {
+            // If we haven't started today's workout, remove from the template
+            const workoutKey = this.getCurrentWorkoutKey();
+            this.workoutData[workoutKey].exercises.splice(exerciseIndex, 1);
+        }
+        
         this.saveData();
         this.render();
     }
