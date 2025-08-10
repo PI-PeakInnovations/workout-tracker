@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Calisthenic Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Debug Loading Status</h1>
+    <div id="status"></div>
+    
+    <script>
+        const status = document.getElementById('status');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            status.appendChild(div);
+            console.log(message);
+        }
+        
+        log('Starting debug...', 'info');
+        
+        // Test if basic JS works
+        log('✅ Basic JavaScript is working', 'success');
+        
+        // Test loading each script
+        const scripts = [
+            'data-manager.js',
+            'router.js', 
+            'workout-builder.js',
+            'history-calendar.js',
+            'views.js',
+            'app.js'
+        ];
+        
+        let loadedCount = 0;
+        
+        scripts.forEach(scriptName => {
+            const script = document.createElement('script');
+            script.src = scriptName;
+            script.onload = () => {
+                log(`✅ Loaded: ${scriptName}`, 'success');
+                loadedCount++;
+                if (loadedCount === scripts.length) {
+                    log('✅ All scripts loaded successfully!', 'success');
+                    checkClasses();
+                }
+            };
+            script.onerror = () => {
+                log(`❌ Failed to load: ${scriptName}`, 'error');
+            };
+            document.head.appendChild(script);
+        });
+        
+        function checkClasses() {
+            // Check if classes are defined
+            if (typeof WorkoutTracker !== 'undefined') {
+                log('✅ WorkoutTracker class is available', 'success');
+            } else {
+                log('❌ WorkoutTracker class is missing', 'error');
+            }
+            
+            if (typeof Router !== 'undefined') {
+                log('✅ Router class is available', 'success');
+            } else {
+                log('❌ Router class is missing', 'error');
+            }
+            
+            if (typeof DataManager !== 'undefined') {
+                log('✅ DataManager class is available', 'success');
+            } else {
+                log('❌ DataManager class is missing', 'error');
+            }
+        }
+        
+        // Catch any errors
+        window.onerror = function(msg, url, line) {
+            log(`❌ JavaScript Error: ${msg} at line ${line}`, 'error');
+        };
+    </script>
+</body>
+</html>
