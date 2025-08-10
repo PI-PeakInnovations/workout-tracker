@@ -13,11 +13,15 @@ class OnboardingFlow {
     }
 
     checkIfFirstTime() {
-        const hasWorkouts = Object.keys(this.app.workoutData).length > 2; // More than default Day1/Day2
         const hasHistory = Object.keys(this.app.workoutHistory).length > 0;
         const hasCompletedOnboarding = this.app.userSettings.completedOnboarding;
         
-        return !hasWorkouts && !hasHistory && !hasCompletedOnboarding;
+        // Check if we only have default workouts (Day1, Day2)
+        const workoutKeys = Object.keys(this.app.workoutData);
+        const hasOnlyDefaultWorkouts = workoutKeys.length <= 2 && 
+                                       workoutKeys.every(key => key === 'Day1' || key === 'Day2');
+        
+        return hasOnlyDefaultWorkouts && !hasHistory && !hasCompletedOnboarding;
     }
 
     startOnboarding() {
