@@ -2,12 +2,12 @@
   "name": "Calisthenic Tracker",
   "short_name": "CalTracker",
   "description": "Track your calisthenic workouts and progress",
-  "start_url": "/",
+  "start_url": "/workout-tracker/",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "/workout-tracker/",
   "icons": [
     {
       "src": "icon-192.png",
