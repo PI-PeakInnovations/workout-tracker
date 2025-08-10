@@ -198,14 +198,14 @@ class WorkoutBuilder {
     getExerciseIcon(exercise) {
         const category = this.getExerciseCategory(exercise);
         const icons = {
-            'TRX': '🕸️',
-            'Ring': '💍',
-            'Parallette': '🤸',
-            'Pull-up': '🏋️',
-            'Dumbbell': '🏋️‍♂️',
-            'Bodyweight': '💪'
+            'TRX': '⟆⟇',
+            'Ring': '◯◯',
+            'Parallette': '┃┃',
+            'Pull-up': '━━',
+            'Dumbbell': '🏋️',
+            'Bodyweight': '🏃'
         };
-        return icons[category] || '💪';
+        return icons[category] || '🏃';
     }
 
     createNewWorkout() {

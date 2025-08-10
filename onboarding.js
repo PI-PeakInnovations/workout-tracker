@@ -90,14 +90,14 @@ class OnboardingFlow {
 
     getEquipmentStepHTML() {
         const equipment = [
-            { id: 'bodyweight', name: 'Bodyweight Only', icon: '💪', description: 'No equipment needed' },
-            { id: 'pull-up-bar', name: 'Pull-up Bar', icon: '🏋️', description: 'Mounted or doorway' },
-            { id: 'dumbbells', name: 'Dumbbells', icon: '🏋️‍♂️', description: 'Adjustable or fixed' },
-            { id: 'trx', name: 'TRX/Suspension', icon: '🕸️', description: 'Suspension trainer' },
-            { id: 'rings', name: 'Gymnastic Rings', icon: '💍', description: 'Hanging rings' },
-            { id: 'parallettes', name: 'Parallettes', icon: '🤸', description: 'Low parallel bars' },
-            { id: 'resistance-bands', name: 'Resistance Bands', icon: '🎗️', description: 'Elastic bands' },
-            { id: 'kettlebell', name: 'Kettlebell', icon: '⚖️', description: 'Weighted ball with handle' }
+            { id: 'bodyweight', name: 'Bodyweight Only', icon: '🏃', description: 'No equipment needed' },
+            { id: 'pull-up-bar', name: 'Pull-up Bar', icon: '━━', description: 'Mounted or doorway' },
+            { id: 'dumbbells', name: 'Dumbbells', icon: '🏋️', description: 'Adjustable or fixed' },
+            { id: 'trx', name: 'TRX/Suspension', icon: '⟆⟇', description: 'Suspension trainer' },
+            { id: 'rings', name: 'Gymnastic Rings', icon: '◯◯', description: 'Hanging rings' },
+            { id: 'parallettes', name: 'Parallettes', icon: '┃┃', description: 'Low parallel bars' },
+            { id: 'resistance-bands', name: 'Resistance Bands', icon: '〰️', description: 'Elastic bands' },
+            { id: 'kettlebell', name: 'Kettlebell', icon: '🔔', description: 'Weighted ball with handle' }
         ];
 
         return `
