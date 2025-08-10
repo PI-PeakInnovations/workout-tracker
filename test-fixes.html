@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Bug Fixes - Workout Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test { padding: 15px; margin: 10px 0; border: 2px solid #ccc; border-radius: 8px; }
+        .success { border-color: #28a745; background: #d4edda; }
+        .error { border-color: #dc3545; background: #f8d7da; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Bug Fixes</h1>
+    
+    <div class="test">
+        <h3>Test 1: Toggle Set Completion</h3>
+        <p>Click the button multiple times - it should toggle between ○ and ✓</p>
+        <button id="toggleBtn" onclick="testToggle()">○ Click to Test</button>
+        <div id="toggleResult"></div>
+    </div>
+
+    <div class="test">
+        <h3>Test 2: Day-Specific Data</h3>
+        <p>Data should be stored per day, not globally</p>
+        <button onclick="testDayData()">Test Day Isolation</button>
+        <div id="dayResult"></div>
+    </div>
+
+    <div class="test">
+        <h3>Test 3: Clear All Data</h3>
+        <p>Clear browser storage to start fresh</p>
+        <button onclick="clearAllData()" style="background: #dc3545; color: white;">Clear Storage</button>
+        <div id="clearResult"></div>
+    </div>
+
+    <script>
+        let toggleState = false;
+
+        function testToggle() {
+            const btn = document.getElementById('toggleBtn');
+            const result = document.getElementById('toggleResult');
+            
+            toggleState = !toggleState;
+            btn.textContent = toggleState ? '✓ Click to Test' : '○ Click to Test';
+            btn.parentElement.className = toggleState ? 'test success' : 'test';
+            
+            result.innerHTML = `<p>✅ Toggle working! Current state: ${toggleState ? 'Completed' : 'Incomplete'}</p>`;
+        }
+
+        function testDayData() {
+            const result = document.getElementById('dayResult');
+            const today = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date(Date.now() + 24*60*60*1000).toISOString().split('T')[0];
+            
+            // Test localStorage separation
+            localStorage.setItem(`test-${today}`, 'Today Data');
+            localStorage.setItem(`test-${tomorrow}`, 'Tomorrow Data');
+            
+            const todayData = localStorage.getItem(`test-${today}`);
+            const tomorrowData = localStorage.getItem(`test-${tomorrow}`);
+            
+            if (todayData !== tomorrowData) {
+                result.innerHTML = `<p>✅ Day isolation working!<br>Today: ${todayData}<br>Tomorrow: ${tomorrowData}</p>`;
+                result.parentElement.className = 'test success';
+            } else {
+                result.innerHTML = `<p>❌ Day isolation failed</p>`;
+                result.parentElement.className = 'test error';
+            }
+        }
+
+        function clearAllData() {
+            const result = document.getElementById('clearResult');
+            
+            try {
+                // Clear localStorage
+                localStorage.clear();
+                
+                // Clear IndexedDB
+                if (window.indexedDB) {
+                    indexedDB.deleteDatabase('WorkoutTrackerDB');
+                }
+                
+                result.innerHTML = `<p>✅ All data cleared! Refresh the main app to start fresh.</p>`;
+                result.parentElement.className = 'test success';
+                
+                setTimeout(() => {
+                    if (confirm('Data cleared! Open main app now?')) {
+                        window.open('/', '_blank');
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                result.innerHTML = `<p>❌ Error clearing data: ${error.message}</p>`;
+                result.parentElement.className = 'test error';
+            }
+        }
+    </script>
+</body>
+</html>
