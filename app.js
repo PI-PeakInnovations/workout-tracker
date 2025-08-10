@@ -171,6 +171,17 @@ class WorkoutTracker {
         }
     }
 
+    handleKeydown(event) {
+        // Keyboard shortcuts - can be implemented later
+        // For now, just prevent any potential errors
+    }
+
+    handleInstallPrompt(event) {
+        // PWA install prompt handling - can be implemented later
+        // For now, just prevent any potential errors
+        event.preventDefault();
+    }
+
     render() {
         const container = document.getElementById('app');
         if (!container) return;

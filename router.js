@@ -27,7 +27,13 @@ class Router {
     }
 
     handleRoute() {
-        const path = window.location.pathname;
+        let path = window.location.pathname;
+        
+        // Handle GitHub Pages paths (remove /workout-tracker prefix)
+        if (path.startsWith('/workout-tracker')) {
+            path = path.replace('/workout-tracker', '') || '/';
+        }
+        
         this.currentPath = path;
         
         const handler = this.routes[path] || this.routes['/'];
