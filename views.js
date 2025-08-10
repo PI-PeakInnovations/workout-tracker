@@ -50,12 +50,13 @@ WorkoutTracker.prototype.getBuilderViewHTML = function() {
             </div>
 
             <div class="builder-content">
-                <!-- Workout Builder Area -->
+                <!-- Simple Workout Builder -->
                 <div class="workout-builder-section">
-                    <h2>Build Your Workout</h2>
                     <div id="workoutBuilderContainer">
-                        <div class="empty-builder-state">
-                            <p>Create a new workout or select one to edit from your library below.</p>
+                        <div class="simple-builder-state">
+                            <h2>Quick Start Options</h2>
+                            <button data-action="add-exercise" class="primary-btn large-btn">+ Add Exercise</button>
+                            <p>Or select an existing workout to edit below</p>
                         </div>
                     </div>
                 </div>
@@ -65,23 +66,6 @@ WorkoutTracker.prototype.getBuilderViewHTML = function() {
                     <h2>Your Workouts</h2>
                     <div class="workout-grid">
                         ${availableWorkouts.map(workoutId => this.getWorkoutCardHTML(workoutId)).join('')}
-                    </div>
-                </div>
-
-                <!-- Exercise Library -->
-                <div class="exercise-library-section">
-                    <h2>Exercise Library</h2>
-                    <div class="exercise-filters">
-                        <button class="filter-btn active" data-filter-category="all">All</button>
-                        <button class="filter-btn" data-filter-category="TRX">TRX</button>
-                        <button class="filter-btn" data-filter-category="Ring">Rings</button>
-                        <button class="filter-btn" data-filter-category="Parallette">Parallettes</button>
-                        <button class="filter-btn" data-filter-category="Pull-up">Pull-up Bar</button>
-                        <button class="filter-btn" data-filter-category="Dumbbell">Dumbbells</button>
-                        <button class="filter-btn" data-filter-category="Bodyweight">Bodyweight</button>
-                    </div>
-                    <div class="exercise-library-grid" id="exerciseLibraryGrid">
-                        <!-- Exercises will be loaded by workout builder -->
                     </div>
                 </div>
             </div>

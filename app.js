@@ -17,22 +17,29 @@ class WorkoutTracker {
     }
 
     async init() {
-        await this.loadData();
-        this.setupRouter();
-        this.setupEventListeners();
-        this.initializeOnboarding();
-        this.initializeExerciseSelector();
-        
-        // Force onboarding for truly first-time users (incognito mode)
-        if (!this.userSettings.completedOnboarding && 
-            Object.keys(this.workoutHistory).length === 0 &&
-            (!localStorage.getItem || !localStorage.getItem('workout-tracker-data'))) {
-            console.log('Forcing onboarding for new user');
-            this.currentView = 'onboarding';
-            this.onboardingStep = 1;
+        try {
+            await this.loadData();
+            this.setupRouter();
+            this.setupEventListeners();
+            
+            // Check for first-time user before initializing heavy components
+            const isFirstTime = !this.userSettings.completedOnboarding && 
+                              Object.keys(this.workoutHistory).length === 0;
+            
+            if (isFirstTime) {
+                console.log('First-time user detected, starting onboarding');
+                this.currentView = 'onboarding';
+                this.onboardingStep = 1;
+                this.initializeOnboarding();
+            } else {
+                this.initializeExerciseSelector();
+            }
+            
+            this.render();
+        } catch (error) {
+            console.error('App initialization failed:', error);
+            document.getElementById('app').innerHTML = '<div class="error">Failed to load app</div>';
         }
-        
-        this.render();
     }
 
     async loadData() {
@@ -386,6 +393,15 @@ class WorkoutTracker {
         
         this.saveData();
         this.render();
+    }
+
+    // Exercise picker integration
+    showExercisePicker(workoutId) {
+        if (this.exerciseSelector) {
+            this.exerciseSelector.showSelector();
+        } else {
+            console.warn('Exercise selector not initialized');
+        }
     }
 
     // Placeholder methods for advanced features
