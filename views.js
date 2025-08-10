@@ -282,17 +282,19 @@ WorkoutTracker.prototype.getSetsHTML = function(exercise, exerciseIndex) {
     const targetReps = parseInt(sets[1]) || exercise.targetReps || 10;
     
     return Array.from({ length: numSets }, (_, setIndex) => {
-        const completed = exercise.completedSets && exercise.completedSets[setIndex];
+        const completedSet = exercise.completedSets && exercise.completedSets[setIndex];
+        const isCompleted = completedSet && completedSet.completed === true;
+        
         return `
-            <div class="set-item ${completed ? 'completed' : ''}">
+            <div class="set-item ${isCompleted ? 'completed' : ''}">
                 <span class="set-number">${setIndex + 1}</span>
-                <input type="number" class="reps-input" value="${completed ? completed.reps : targetReps}" placeholder="Reps" data-action="update-reps" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}">
+                <input type="number" class="reps-input" value="${isCompleted ? completedSet.reps : targetReps}" placeholder="Reps" data-action="update-reps" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}">
                 ${exercise.type === 'weighted' ? `
-                    <input type="number" class="weight-input" value="${completed ? completed.weight : exercise.weight || 0}" placeholder="Weight" data-action="update-weight" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}">
+                    <input type="number" class="weight-input" value="${isCompleted ? completedSet.weight : exercise.weight || 0}" placeholder="Weight" data-action="update-weight" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}">
                     <span class="weight-unit">${this.userSettings.units === 'metric' ? 'kg' : 'lbs'}</span>
                 ` : ''}
                 <button data-action="complete-set" data-exercise-index="${exerciseIndex}" data-set-index="${setIndex}" class="complete-btn">
-                    ${completed ? '✓' : '○'}
+                    ${isCompleted ? '✓' : '○'}
                 </button>
             </div>
         `;
