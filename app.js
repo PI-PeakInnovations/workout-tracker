@@ -20,6 +20,8 @@ class WorkoutTracker {
         await this.loadData();
         this.setupRouter();
         this.setupEventListeners();
+        this.initializeOnboarding();
+        this.initializeExerciseSelector();
         this.render();
     }
 
@@ -44,6 +46,7 @@ class WorkoutTracker {
         this.router.addRoute('/history', () => this.showHistoryView());
         this.router.addRoute('/progress', () => this.showProgressView());
         this.router.addRoute('/settings', () => this.showSettingsView());
+        this.router.addRoute('/onboarding', () => this.showOnboardingView());
         this.router.init();
     }
 
@@ -118,6 +121,15 @@ class WorkoutTracker {
             case 'update-notes':
                 this.updateExerciseNotes(data.exerciseIndex, event.target.value);
                 break;
+            default:
+                // Handle onboarding actions
+                if (this.onboardingFlow && action.includes('onboarding')) {
+                    this.onboardingFlow.handleOnboardingAction(action, data);
+                } else if (action.startsWith('toggle-') || action.startsWith('select-')) {
+                    // Handle onboarding selection actions
+                    this.onboardingFlow?.handleOnboardingAction(action, data);
+                }
+                break;
         }
     }
 
@@ -131,6 +143,8 @@ class WorkoutTracker {
 
     getCurrentViewHTML() {
         switch (this.currentView) {
+            case 'onboarding':
+                return this.onboardingFlow?.getOnboardingHTML() || this.getWorkoutViewHTML();
             case 'workout':
                 return this.getWorkoutViewHTML();
             case 'builder':
@@ -181,6 +195,11 @@ class WorkoutTracker {
 
     showSettingsView() {
         this.currentView = 'settings';
+        this.render();
+    }
+
+    showOnboardingView() {
+        this.currentView = 'onboarding';
         this.render();
     }
 
