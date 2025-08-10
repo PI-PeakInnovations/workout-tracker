@@ -86,7 +86,7 @@ class WorkoutTracker {
                 this.showExercisePicker(data.workoutId);
                 break;
             case 'remove-exercise':
-                this.removeExercise(data.workoutId, data.exerciseIndex);
+                this.removeExercise(data.exerciseIndex);
                 break;
             case 'save-workout':
                 this.saveCurrentWorkout();
@@ -186,19 +186,41 @@ class WorkoutTracker {
 
     // Workout Management
     completeSet(exerciseIndex, setIndex) {
-        const workoutKey = this.getCurrentWorkoutKey();
-        const exercise = this.workoutData[workoutKey].exercises[exerciseIndex];
+        const today = this.formatDate(this.currentDate);
+        
+        // Get or create today's workout data
+        if (!this.workoutHistory[today]) {
+            const workoutKey = this.getCurrentWorkoutKey();
+            this.workoutHistory[today] = {
+                workoutId: workoutKey,
+                exercises: JSON.parse(JSON.stringify(this.workoutData[workoutKey].exercises)),
+                startedAt: new Date().toISOString()
+            };
+        }
+        
+        const todayWorkout = this.workoutHistory[today];
+        const exercise = todayWorkout.exercises[exerciseIndex];
         
         if (!exercise.completedSets) exercise.completedSets = [];
         
-        exercise.completedSets[setIndex] = {
-            completed: true,
-            timestamp: new Date().toISOString(),
-            reps: exercise.targetReps || 0,
-            weight: exercise.weight || 0
-        };
+        // Toggle the set completion
+        if (exercise.completedSets[setIndex]?.completed) {
+            // Uncheck the set
+            exercise.completedSets[setIndex] = {
+                completed: false,
+                timestamp: new Date().toISOString()
+            };
+        } else {
+            // Check the set
+            exercise.completedSets[setIndex] = {
+                completed: true,
+                timestamp: new Date().toISOString(),
+                reps: exercise.targetReps || 0,
+                weight: exercise.weight || 0
+            };
+        }
 
-        this.saveWorkoutProgress();
+        this.saveData();
         this.render();
     }
 
@@ -297,6 +319,13 @@ class WorkoutTracker {
         const exercise = this.workoutData[workoutKey].exercises[exerciseIndex];
         exercise.notes = notes;
         this.saveData();
+    }
+
+    removeExercise(exerciseIndex) {
+        const workoutKey = this.getCurrentWorkoutKey();
+        this.workoutData[workoutKey].exercises.splice(exerciseIndex, 1);
+        this.saveData();
+        this.render();
     }
 
     // Placeholder methods for advanced features

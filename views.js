@@ -4,6 +4,12 @@ WorkoutTracker.prototype.getWorkoutViewHTML = function() {
     const workout = this.workoutData[workoutKey];
     const today = this.formatDate(this.currentDate);
     const todayHistory = this.workoutHistory[today];
+    
+    // Use today's specific workout data if it exists, otherwise use template
+    const displayWorkout = todayHistory ? {
+        name: workout?.name || todayHistory.workoutId,
+        exercises: todayHistory.exercises
+    } : workout;
 
     return `
         <div class="view workout-view">
@@ -15,12 +21,12 @@ WorkoutTracker.prototype.getWorkoutViewHTML = function() {
                     <div class="date-display">${this.formatDisplayDate(this.currentDate)}</div>
                     <button data-action="next-day" class="nav-btn">›</button>
                 </div>
-                <h1 class="workout-title">${workout?.name || 'No Workout'}</h1>
-                ${todayHistory ? '<div class="completion-badge">✓ Completed</div>' : ''}
+                <h1 class="workout-title">${displayWorkout?.name || 'No Workout'}</h1>
+                ${todayHistory ? '<div class="completion-badge">✓ Started</div>' : ''}
             </div>
 
             <div class="workout-content">
-                ${workout ? this.getExerciseListHTML(workout.exercises, workoutKey) : this.getNoWorkoutHTML()}
+                ${displayWorkout ? this.getExerciseListHTML(displayWorkout.exercises, workoutKey) : this.getNoWorkoutHTML()}
             </div>
 
             <div class="workout-actions">
@@ -257,7 +263,7 @@ WorkoutTracker.prototype.getExerciseListHTML = function(exercises, workoutKey) {
             <div class="exercise-header">
                 <h3>${exercise.name}</h3>
                 <div class="exercise-actions">
-                    <button data-action="remove-exercise" data-workout-id="${workoutKey}" data-exercise-index="${index}">×</button>
+                    <button data-action="remove-exercise" data-exercise-index="${index}">×</button>
                 </div>
             </div>
             <div class="sets-container">
